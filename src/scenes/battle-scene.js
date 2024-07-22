@@ -5,13 +5,14 @@ import {
   MONSTER_ASSET_KEYS,
 } from '../assets/asset-keys.js';
 import { BattleMenu } from '../battle/ui/menu/battle-menu.js';
+import { DIRECTION } from '../common/direction.js';
 import { Phaser } from '../lib/phaser.js';
 import { SCENE_KEYS } from './scene-keys.js';
 
 export class BattleScene extends Phaser.Scene {
   /** @type {BattleMenu}  */
   #battleMenu;
-  /** @type {Phaser.Types.Input.Keyboard.CursorKeys}  */
+  /** @type {Phaser.Types.Input.Keyboard.CursorKeys & {esc: Phaser.Input.Keyboard.Key}}  */
   #cursorKeys;
 
   constructor() {
@@ -92,22 +93,50 @@ export class BattleScene extends Phaser.Scene {
     this.#battleMenu = new BattleMenu(this);
     this.#battleMenu.showMainBattleMenu();
 
-    this.#cursorKeys = this.input.keyboard.createCursorKeys();
+    this.#cursorKeys = {
+      esc: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
+      ...this.input.keyboard.createCursorKeys(),
+    };
   }
-
   update() {
-    // only once and then goes back to false
+    // true only once and then goes back to false
     const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(
       this.#cursorKeys.space
     );
+    // true while held down
+    // console.log(this.#cursorKeys.space.isDown);
 
     if (wasSpaceKeyPressed) {
       this.#battleMenu.handlePlayerInput('OK');
       return;
     }
-    // true while held down
-    // console.log(this.#cursorKeys.space.isDown);
+
+    if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.esc)) {
+      this.#battleMenu.handlePlayerInput('CANCEL');
+      return;
+    }
+    /** @type {import('../common/direction.js').Direction}  */
+    let selectedDirection = DIRECTION.NONE;
+    if (this.#cursorKeys.left.isDown) {
+      selectedDirection = DIRECTION.LEFT;
+    } else if (this.#cursorKeys.right.isDown) {
+      selectedDirection = DIRECTION.RIGHT;
+    } else if (this.#cursorKeys.up.isDown) {
+      selectedDirection = DIRECTION.UP;
+    } else if (this.#cursorKeys.down.isDown) {
+      selectedDirection = DIRECTION.DOWN;
+    }
+
+    if (selectedDirection !== DIRECTION.NONE)
+      this.#battleMenu.handlePlayerInput(selectedDirection);
   }
+
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   * @returns {Phaser.GameObjects.Container}
+   */
 
   #createHealthBar(x, y) {
     const scale = [1, 0.7];
