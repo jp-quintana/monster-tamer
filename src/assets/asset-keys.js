@@ -16,3 +16,7 @@ export const MONSTER_ASSET_KEYS = Object.freeze({
   IGUANIGNITE: 'IGUANIGNITE',
   CARNODUSK: 'CARNODUSK',
 });
+
+export const UI_ASSET_KEYS = Object.freeze({
+  CURSOR: 'CURSOR',
+});
