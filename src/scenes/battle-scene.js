@@ -57,7 +57,7 @@ export class BattleScene extends Phaser.Scene {
       this.add
         .text(443, 80, '25/25', {
           color: '#7E3D4F',
-          fontSize: '16',
+          fontSize: '16px',
         })
         .setOrigin(1, 0), // align to the right always, numbers might go up as monster levels up, so you want text to grow towards left not right
     ]);
