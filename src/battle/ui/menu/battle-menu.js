@@ -93,14 +93,21 @@ export class BattleMenu {
    */
   handlePlayerInput(input) {
     if (input === 'CANCEL') {
-      this.hideMonsterAttackSubMenu();
-      this.showMainBattleMenu();
+      this.#switchToMainBattleMenu();
       return;
     }
 
     if (input === 'OK') {
-      this.showMonsterAttackSubMenu();
-      this.hideMainBattleMenu();
+      if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
+        if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FIGHT) {
+          this.showMonsterAttackSubMenu();
+          this.hideMainBattleMenu();
+        }
+        return;
+      }
+      if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+        return;
+      }
       return;
     }
 
@@ -441,5 +448,10 @@ export class BattleMenu {
       default:
         exhaustiveGuard(this.#selectedAttackMoveOption);
     }
+  }
+
+  #switchToMainBattleMenu() {
+    this.hideMonsterAttackSubMenu();
+    this.showMainBattleMenu();
   }
 }
