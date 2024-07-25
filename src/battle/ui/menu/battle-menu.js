@@ -43,6 +43,12 @@ export class BattleMenu {
   #selectedAttackMoveOption;
   /** @type {import('./battle-menu-options.js').ActiveBattleMenu}  */
   #activeBattleMenu;
+  /** @type {string[]}  */
+  #queuedInfoPanelMessages;
+  /** @type {() => void | undefined}  */
+  #queuedInfoPanelCallback;
+  /** @type {boolean}  */
+  #waitingForPlayerInput;
 
   /**
    *
@@ -53,6 +59,9 @@ export class BattleMenu {
     this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
     this.#selectedBattleMenuOption = BATTLE_MENU_OPTIONS.FIGHT;
     this.#selectedAttackMoveOption = ATTACK_MOVE_OPTIONS.MOVE_1;
+    this.#queuedInfoPanelCallback = undefined;
+    this.#queuedInfoPanelMessages = [];
+    this.#waitingForPlayerInput;
     this.#createMainInfoPane();
     this.#createMainBattleMenu();
     this.#createMonsterAttackSubMenu();
@@ -92,6 +101,10 @@ export class BattleMenu {
    * @param {import('../../../common/direction.js').Direction | 'OK' | 'CANCEL'} input
    */
   handlePlayerInput(input) {
+    if (this.#waitingForPlayerInput && (input === 'OK' || input === 'CANCEL')) {
+      this.#updateInfoPaneWithMessage();
+    }
+
     if (input === 'CANCEL') {
       this.#switchToMainBattleMenu();
       return;
@@ -99,10 +112,8 @@ export class BattleMenu {
 
     if (input === 'OK') {
       if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
-        if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FIGHT) {
-          this.showMonsterAttackSubMenu();
-          this.hideMainBattleMenu();
-        }
+        this.#handlePlayerChooseMainBattleOption();
+
         return;
       }
       if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
@@ -184,6 +195,36 @@ export class BattleMenu {
     );
 
     this.hideMainBattleMenu();
+  }
+
+  /**
+   * @param {string[]} messages
+   * @param {() => void} [callback]
+   */
+  updateInfoPanelMessagesAndWaitForInput(messages, callback) {
+    this.#queuedInfoPanelMessages = messages;
+    this.#queuedInfoPanelCallback = callback;
+
+    this.#updateInfoPaneWithMessage();
+  }
+
+  #updateInfoPaneWithMessage() {
+    this.#waitingForPlayerInput = false;
+    this.#battleTextGameObjectLine1.setText('').setAlpha(1);
+
+    // check if all messages have been displayed from the queue and call the callback
+    if (this.#queuedInfoPanelMessages.length === 0) {
+      if (this.#queuedInfoPanelCallback) {
+        this.#queuedInfoPanelCallback();
+        this.#queuedInfoPanelCallback = undefined;
+      }
+      return;
+    }
+
+    // get first message from queue and animate message
+    const messageToDisplay = this.#queuedInfoPanelMessages.shift();
+    this.#battleTextGameObjectLine1.setText(messageToDisplay);
+    this.#waitingForPlayerInput = true;
   }
 
   #createMonsterAttackSubMenu() {
@@ -453,5 +494,28 @@ export class BattleMenu {
   #switchToMainBattleMenu() {
     this.hideMonsterAttackSubMenu();
     this.showMainBattleMenu();
+  }
+
+  #handlePlayerChooseMainBattleOption() {
+    this.hideMainBattleMenu();
+
+    if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FIGHT) {
+      this.showMonsterAttackSubMenu();
+      return;
+    }
+
+    if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.ITEM) {
+      return;
+    }
+
+    if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.SWITCH) {
+      return;
+    }
+
+    if (this.#selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FLEE) {
+      return;
+    }
+
+    exhaustiveGuard(this.#selectedBattleMenuOption);
   }
 }
