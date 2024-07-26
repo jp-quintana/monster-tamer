@@ -5,6 +5,7 @@ import {
   MONSTER_ASSET_KEYS,
 } from '../assets/asset-keys.js';
 import { Background } from '../battle/background.js';
+import { BattleMonster } from '../battle/monsters/battle-monster.js';
 import { BattleMenu } from '../battle/ui/menu/battle-menu.js';
 import { HealthBar } from '../battle/ui/menu/health-bar.js';
 import { DIRECTION } from '../common/direction.js';
@@ -16,6 +17,8 @@ export class BattleScene extends Phaser.Scene {
   #battleMenu;
   /** @type {Phaser.Types.Input.Keyboard.CursorKeys & {esc: Phaser.Input.Keyboard.Key}}  */
   #cursorKeys;
+  /** @type {BattleMonster}  */
+  #activeEnemyMonster;
 
   constructor() {
     super({
@@ -28,7 +31,22 @@ export class BattleScene extends Phaser.Scene {
     background.showForest();
 
     // render out the player and enemy monsters
-    this.add.image(768, 144, MONSTER_ASSET_KEYS.CARNODUSK, 0);
+    this.#activeEnemyMonster = new BattleMonster(
+      {
+        scene: this,
+        monsterDetails: {
+          name: MONSTER_ASSET_KEYS.CARNODUSK,
+          assetKey: MONSTER_ASSET_KEYS.CARNODUSK,
+          assetFrame: 0,
+          currentHp: 25,
+          maxHp: 25,
+          attackIds: [],
+          baseAttack: 5,
+        },
+      },
+      { x: 768, y: 144 }
+    );
+    // this.add.image(768, 144, MONSTER_ASSET_KEYS.CARNODUSK, 0);
     this.add.image(256, 316, MONSTER_ASSET_KEYS.IGUANIGNITE, 0).setFlipX(true);
 
     // render out the player and health bar
@@ -66,7 +84,9 @@ export class BattleScene extends Phaser.Scene {
     ]);
 
     // render out the enemy and health bar
-    const enemyHealthBar = new HealthBar(this, 34, 34);
+    // const enemyHealthBar = new HealthBar(this, 34, 34);
+    // TODO:
+    const enemyHealthBar = this.#activeEnemyMonster._healthBar;
     const enemyMonsterName = this.add.text(
       30,
       20,
@@ -105,7 +125,7 @@ export class BattleScene extends Phaser.Scene {
     playerHealthBar.setMeterPercentageAnimated(0.5, {
       duration: 3000,
       callback: () => {
-        playerHealthBar.setMeterPercentageAnimated(1);
+        console.log('callback works');
       },
     });
   }
