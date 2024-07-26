@@ -16,6 +16,12 @@ export class HealthBar {
   #middle;
   /** @type {Phaser.GameObjects.Image}  */
   #rightCap;
+  /** @type {Phaser.GameObjects.Image}  */
+  #leftShadowCap;
+  /** @type {Phaser.GameObjects.Image}  */
+  #middleShadow;
+  /** @type {Phaser.GameObjects.Image}  */
+  #rightShadowCap;
 
   /**
    *
@@ -28,20 +34,57 @@ export class HealthBar {
     this.#fullWidth = 360;
     this.#scaleY = 0.7;
     this.#healthBarContainer = this.#scene.add.container(x, y, []);
+    this.#createHealthBarShadowImages(x, y);
     this.#createHealthBarImages(x, y);
     this.#setMeterPercentage(1);
+    // this.setMeterPercentageAnimated(0.5, { duration: 1500 });
   }
 
   get container() {
     return this.#healthBarContainer;
   }
+
   /**
    *
    * @param {number} x
    * @param {number} y
    * @returns {void}
    */
+  #createHealthBarShadowImages(x, y) {
+    this.#leftShadowCap = this.#scene.add
+      .image(x, y, HEALTH_BAR_ASSET_KEYS.LEFT_CAP_SHADOW)
+      .setOrigin(0, 0.5)
+      .setScale(1, this.#scaleY);
+    this.#middleShadow = this.#scene.add
+      .image(
+        this.#leftShadowCap.x + this.#leftShadowCap.width,
+        y,
+        HEALTH_BAR_ASSET_KEYS.MIDDLE_SHADOW
+      )
+      .setOrigin(0, 0.5)
+      .setScale(1, this.#scaleY);
+    this.#middleShadow.displayWidth = this.#fullWidth;
+    this.#rightShadowCap = this.#scene.add
+      .image(
+        this.#middleShadow.x + this.#middleShadow.displayWidth,
+        y,
+        HEALTH_BAR_ASSET_KEYS.RIGHT_CAP_SHADOW
+      )
+      .setOrigin(0, 0.5)
+      .setScale(1, this.#scaleY);
+    this.#healthBarContainer.add([
+      this.#leftShadowCap,
+      this.#middleShadow,
+      this.#rightShadowCap,
+    ]);
+  }
 
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   * @returns {void}
+   */
   #createHealthBarImages(x, y) {
     this.#leftCap = this.#scene.add
       .image(x, y, HEALTH_BAR_ASSET_KEYS.LEFT_CAP)
@@ -66,9 +109,42 @@ export class HealthBar {
     this.#healthBarContainer.add([this.#leftCap, this.#middle, this.#rightCap]);
   }
 
+  /**
+   *
+   * @param {number} [percent=1] a number between 0 and 1 and that is used for how filled the health bar is
+   * @returns {void}
+   */
   #setMeterPercentage(percent = 1) {
     const width = this.#fullWidth * percent;
     this.#middle.displayWidth = width;
     this.#rightCap.x = this.#middle.x + this.#middle.displayWidth;
+  }
+
+  /**
+   *
+   * @param {number} [percent=1] a number between 0 and 1 and that is used for how filled the health bar is
+   * @param {Object} [options]
+   * @param {number} [options.duration=1000]
+   * @param {()=> void} [options.callback]
+   * @returns {void}
+   */
+  setMeterPercentageAnimated(percent = 1, options) {
+    const width = this.#fullWidth * percent;
+
+    this.#scene.tweens.add({
+      targets: this.#middle,
+      displayWidth: width,
+      duration: options?.duration || 1000,
+      ease: Phaser.Math.Easing.Sine.Out,
+      onUpdate: () => {
+        this.#rightCap.x = this.#middle.x + this.#middle.displayWidth;
+
+        const isVisible = this.#middle.displayWidth > 0;
+        this.#leftCap.visible = isVisible;
+        this.#middle.visible = isVisible;
+        this.#rightCap.visible = isVisible;
+      },
+      onComplete: options?.callback,
+    });
   }
 }

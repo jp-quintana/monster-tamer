@@ -32,6 +32,7 @@ export class BattleScene extends Phaser.Scene {
     this.add.image(256, 316, MONSTER_ASSET_KEYS.IGUANIGNITE, 0).setFlipX(true);
 
     // render out the player and health bar
+    const playerHealthBar = new HealthBar(this, 34, 34);
     const playerMonsterName = this.add.text(
       30,
       20,
@@ -46,7 +47,7 @@ export class BattleScene extends Phaser.Scene {
         .image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
         .setOrigin(0),
       playerMonsterName,
-      new HealthBar(this, 34, 34).container,
+      playerHealthBar.container,
       this.add.text(playerMonsterName.width + 35, 23, 'L5', {
         color: '#ED474B',
         fontSize: '28px ',
@@ -65,6 +66,7 @@ export class BattleScene extends Phaser.Scene {
     ]);
 
     // render out the enemy and health bar
+    const enemyHealthBar = new HealthBar(this, 34, 34);
     const enemyMonsterName = this.add.text(
       30,
       20,
@@ -80,7 +82,7 @@ export class BattleScene extends Phaser.Scene {
         .setOrigin(0)
         .setScale(1, 0.8),
       enemyMonsterName,
-      new HealthBar(this, 34, 34).container,
+      enemyHealthBar.container,
       this.add.text(enemyMonsterName.width + 35, 23, 'L5', {
         color: '#ED474B',
         fontSize: '28px ',
@@ -99,7 +101,15 @@ export class BattleScene extends Phaser.Scene {
       esc: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       ...this.input.keyboard.createCursorKeys(),
     };
+
+    playerHealthBar.setMeterPercentageAnimated(0.5, {
+      duration: 3000,
+      callback: () => {
+        playerHealthBar.setMeterPercentageAnimated(1);
+      },
+    });
   }
+
   update() {
     // true only once and then goes back to false
     const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(
