@@ -1,66 +1,117 @@
-import { MONSTER_ASSET_KEYS } from '../../assets/asset-keys.js';
+import { BATTLE_ASSET_KEYS } from '../../assets/asset-keys.js';
 import { Phaser } from '../../lib/phaser.js';
 import { HealthBar } from '../ui/menu/health-bar.js';
 
-/**
- * @typedef BattleMonsterConfig
- * @type {Object}
- * @property {Phaser.Scene} scene
- * @property {Monster} monsterDetails
- */
-
-/**
- * @typedef Monster
- * @type {Object}
- * @property {string} name
- * @property {string} assetKey
- * @property {number} [assetFrame=0]
- * @property {number} maxHp
- * @property {number} currentHp
- * @property {number} baseAttack
- * @property {string[]} attackIds
- */
-
-/**
- * @typedef Coordinate
- * @type {Object}
- * @property {number} x
- * @property {number} y
- */
-
 export class BattleMonster {
-  /**
-   * @protected @type {Phaser.Scene}
-   */
+  /** @protected @type {Phaser.Scene} */
   _scene;
-  /**
-   * @protected @type {Monster}
-   */
+  /** @protected @type {import('../../types/typedef.js').Monster} */
   _monsterDetails;
-  /**
-   * @protected @type {HealthBar}
-   */
+  /**  @protected @type {HealthBar} */
   _healthBar;
-  /**
-   * @protected @type {Phaser.GameObjects.Image}
-   */
+  /** @protected @type {Phaser.GameObjects.Image} */
   _phaserGameObject;
+  /** @protected @type {number} */
+  _currentHealth;
+  /** @protected @type {number} */
+  _maxHealth;
+  /** @protected @type {import('../../types/typedef.js').Attack[]} */
+  _monsterAttacks;
+  /** @protected @type {Phaser.GameObjects.Container} */
+  _phaserHealthBarGameContainer;
 
   /**
-   *
-   * @param {BattleMonsterConfig} config
-   * @param {Coordinate} position
+   * @param {import('../../types/typedef.js').BattleMonsterConfig} config
+   * @param {import('../../types/typedef.js').Coordinate} position
    */
   constructor(config, position) {
     this._scene = config.scene;
     this._monsterDetails = config.monsterDetails;
+    this._currentHealth = this._monsterDetails.currentHp;
+    this._maxHealth = this._monsterDetails.maxHp;
+    this._monsterAttacks = [];
 
-    this._healthBar = new HealthBar(this._scene, 34, 34);
     this._phaserGameObject = this._scene.add.image(
       position.x,
       position.y,
       this._monsterDetails.assetKey,
       this._monsterDetails.assetFrame || 0
     );
+
+    this.#createHealthbarComponents();
+  }
+
+  /** @type {boolean} */
+  get isFainted() {
+    return this._currentHealth <= 0;
+  }
+
+  /** @type {string} */
+  get name() {
+    return this._monsterDetails.name;
+  }
+
+  /** @type {import('../../types/typedef.js').Attack[]} */
+  get attacks() {
+    return [...this._monsterAttacks];
+  }
+
+  /** @type {number} */
+  get baseAttack() {
+    return this._monsterDetails.baseAttack;
+  }
+
+  /**
+   * @param {number} damage
+   * @param {() => void} callback
+   */
+  takeDamage(damage, callback) {
+    // update current monster health and animate healthbar
+    this._currentHealth -= damage;
+    if (this._currentHealth <= 0) {
+      this._currentHealth = 0;
+    }
+    this._healthBar.setMeterPercentageAnimated(
+      this._currentHealth / this._maxHealth,
+      { callback }
+    );
+  }
+
+  #createHealthbarComponents() {
+    this._healthBar = new HealthBar(this._scene, 34, 34);
+
+    // this.name viene del getter
+    const monsterNameGameText = this._scene.add.text(30, 20, this.name, {
+      color: '#7E3D3F',
+      fontSize: '32px ',
+    });
+
+    const healthbarBgImage = this._scene.add
+      .image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
+      .setOrigin(0)
+      .setScale(1, 0.8);
+
+    const monsterHealthBarLevelText = this._scene.add.text(
+      monsterNameGameText.width + 35,
+      23,
+      'L5',
+      {
+        color: '#ED474B',
+        fontSize: '28px ',
+      }
+    );
+    const monsterHpText = this._scene.add.text(30, 55, 'HP', {
+      color: '#FF6505',
+      fontSize: '24px',
+      fontStyle: 'italic',
+    });
+
+    this._phaserHealthBarGameContainer = this._scene.add.container(0, 0, [
+      healthbarBgImage,
+      monsterNameGameText,
+      this._healthBar.container,
+      monsterHealthBarLevelText,
+      monsterHpText,
+    ]);
   }
 }
