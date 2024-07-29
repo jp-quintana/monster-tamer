@@ -84,7 +84,6 @@ export class BattleScene extends Phaser.Scene {
     ]);
 
     // render out the enemy and health bar
-    // const enemyHealthBar = new HealthBar(this, 34, 34);
     // TODO:
     const enemyHealthBar = this.#activeEnemyMonster._healthBar;
     const enemyMonsterName = this.add.text(
