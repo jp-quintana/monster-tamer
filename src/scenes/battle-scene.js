@@ -37,7 +37,7 @@ export class BattleScene extends Phaser.Scene {
         currentLevel: 5,
         currentHp: 25,
         maxHp: 25,
-        attackIds: [],
+        attackIds: [1],
         baseAttack: 5,
       },
       scaleHealthBarBackgroundImageByY: 0.8,
@@ -52,12 +52,12 @@ export class BattleScene extends Phaser.Scene {
         currentLevel: 5,
         currentHp: 25,
         maxHp: 25,
-        attackIds: [],
+        attackIds: [2],
         baseAttack: 5,
       },
     });
 
-    this.#battleMenu = new BattleMenu(this);
+    this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster);
     this.#battleMenu.showMainBattleMenu();
 
     this.#cursorKeys = {

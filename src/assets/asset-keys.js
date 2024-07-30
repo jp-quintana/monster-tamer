@@ -23,3 +23,7 @@ export const MONSTER_ASSET_KEYS = Object.freeze({
 export const UI_ASSET_KEYS = Object.freeze({
   CURSOR: 'CURSOR',
 });
+
+export const DATA_ASSET_KEYS = Object.freeze({
+  ATTACKS: 'ATTACKS',
+});

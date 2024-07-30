@@ -1,4 +1,4 @@
-import { BATTLE_ASSET_KEYS } from '../../assets/asset-keys.js';
+import { BATTLE_ASSET_KEYS, DATA_ASSET_KEYS } from '../../assets/asset-keys.js';
 import { Phaser } from '../../lib/phaser.js';
 import { HealthBar } from '../ui/menu/health-bar.js';
 
@@ -39,6 +39,15 @@ export class BattleMonster {
     );
 
     this.#createHealthbarComponents(config.scaleHealthBarBackgroundImageByY);
+
+    /** @type {import('../../types/typedef.js').Attack[]} */
+    const data = this._scene.cache.json.get(DATA_ASSET_KEYS.ATTACKS);
+
+    this._monsterDetails.attackIds.forEach((attackId) => {
+      const monsterAttack = data.find((attack) => attack.id === attackId);
+
+      if (monsterAttack !== undefined) this._monsterAttacks.push(monsterAttack);
+    });
   }
 
   /** @type {boolean} */
