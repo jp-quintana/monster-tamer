@@ -16,11 +16,17 @@ export class BattleScene extends Phaser.Scene {
   #activeEnemyMonster;
   /** @type {PlayerBattleMonster}  */
   #activePlayerMonster;
+  /** @type {number}  */
+  #activePlayerAttackIndex;
 
   constructor() {
     super({
       key: SCENE_KEYS.BATTLE_SCENE,
     });
+  }
+
+  init() {
+    this.#activePlayerAttackIndex = -1;
   }
 
   create() {
@@ -65,11 +71,11 @@ export class BattleScene extends Phaser.Scene {
       ...this.input.keyboard.createCursorKeys(),
     };
 
-    this.#activeEnemyMonster.takeDamage(15, () => {
-      this.#activePlayerMonster.takeDamage(15, () => {
-        console.log(this.#activeEnemyMonster.isFainted);
-      });
-    });
+    // this.#activeEnemyMonster.takeDamage(15, () => {
+    //   this.#activePlayerMonster.takeDamage(15, () => {
+    //     console.log(this.#activeEnemyMonster.isFainted);
+    //   });
+    // });
   }
 
   update() {
@@ -86,13 +92,14 @@ export class BattleScene extends Phaser.Scene {
       // check if player selected an attack, and update display text
       if (this.#battleMenu.selectedAttack === undefined) return;
 
+      this.#activePlayerAttackIndex = this.#battleMenu.selectedAttack;
+
+      if (!this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex]) {
+        return;
+      }
+
       this.#battleMenu.hideMonsterAttackSubMenu();
-      this.#battleMenu.updateInfoPanelMessagesAndWaitForInput(
-        [`Player selected move ${this.#battleMenu.selectedAttack}`],
-        () => {
-          this.#battleMenu.showMainBattleMenu();
-        }
-      );
+      this.#handleBattleSequence();
       return;
     }
 
@@ -114,5 +121,50 @@ export class BattleScene extends Phaser.Scene {
 
     if (selectedDirection !== DIRECTION.NONE)
       this.#battleMenu.handlePlayerInput(selectedDirection);
+  }
+
+  #handleBattleSequence() {
+    // general battle flow
+    // show attack used, brief pause
+    // then play attack animation, brief pause
+    // then play damage animation, brief pause
+    // then play health bar animation, brief pause
+    // then repeat the steps above for the other monster
+
+    this.#playerAttack();
+  }
+
+  #playerAttack() {
+    this.#battleMenu.updateInfoPanelMessagesAndWaitForInput(
+      [
+        `${this.#activePlayerMonster.name} used ${
+          this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].name
+        }`,
+      ],
+      () => {
+        this.time.delayedCall(500, () => {
+          this.#activeEnemyMonster.takeDamage(20, () => {
+            this.#enemyAttack();
+          });
+        });
+      }
+    );
+  }
+
+  #enemyAttack() {
+    this.#battleMenu.updateInfoPanelMessagesAndWaitForInput(
+      [
+        `foe ${this.#activeEnemyMonster.name} used ${
+          this.#activeEnemyMonster.attacks[0].name
+        }`,
+      ],
+      () => {
+        this.time.delayedCall(500, () => {
+          this.#activePlayerMonster.takeDamage(20, () => {
+            this.#battleMenu.showMainBattleMenu();
+          });
+        });
+      }
+    );
   }
 }
