@@ -55,7 +55,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [2],
-        baseAttack: 5,
+        baseAttack: 25,
       },
     });
 
@@ -132,6 +132,10 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private playerAttack() {
+    if (this.activePlayerMonster.isFainted) {
+      this.postBattleSequenceCheck();
+      return;
+    }
     this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
       [
         `${this.activePlayerMonster.name} used ${
@@ -140,25 +144,75 @@ export class BattleScene extends Phaser.Scene {
       ],
       () => {
         this.time.delayedCall(500, () => {
-          this.activeEnemyMonster.takeDamage(20, () => {
-            this.enemyAttack();
-          });
+          this.activeEnemyMonster.takeDamage(
+            this.activePlayerMonster.baseAttack,
+            () => {
+              this.enemyAttack();
+            }
+          );
         });
       }
     );
   }
 
   private enemyAttack() {
+    if (this.activeEnemyMonster.isFainted) {
+      this.postBattleSequenceCheck();
+      return;
+    }
+
     this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
       [
         `foe ${this.activeEnemyMonster.name} used ${this.activeEnemyMonster.attacks[0].name}`,
       ],
       () => {
         this.time.delayedCall(500, () => {
-          this.activePlayerMonster.takeDamage(20, () => {
-            this.battleMenu.showMainBattleMenu();
-          });
+          this.activePlayerMonster.takeDamage(
+            this.activeEnemyMonster.baseAttack,
+            () => {
+              this.postBattleSequenceCheck();
+            }
+          );
         });
+      }
+    );
+  }
+
+  private postBattleSequenceCheck() {
+    if (this.activeEnemyMonster.isFainted) {
+      this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
+        [
+          `Wild ${this.activeEnemyMonster.name} fainted`,
+          'You have gained some experience',
+        ],
+        () => {
+          this.transitionToNextScene();
+        }
+      );
+      return;
+    }
+
+    if (this.activePlayerMonster.isFainted) {
+      this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
+        [
+          `${this.activePlayerMonster.name} fainted`,
+          'You have no more monsters, escapting to safety...',
+        ],
+        () => {
+          this.transitionToNextScene();
+        }
+      );
+      return;
+    }
+    this.battleMenu.showMainBattleMenu();
+  }
+
+  private transitionToNextScene() {
+    this.cameras.main.fadeOut(600, 0, 0, 0);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.scene.start(SCENE_KEYS.BATTLE_SCENE);
       }
     );
   }

@@ -5,6 +5,7 @@ import {
   Coordinate,
   Monster,
 } from '../../types/index.ts';
+import { DataUtils } from '../../utils/data-utils.ts';
 import { HealthBar } from '../ui/menu/health-bar.ts';
 
 export class BattleMonster {
@@ -33,10 +34,8 @@ export class BattleMonster {
 
     this.createHealthbarComponents(config.scaleHealthBarBackgroundImageByY);
 
-    const data: Attack[] = this.scene.cache.json.get(DATA_ASSET_KEYS.ATTACKS);
-
     this.monsterDetails.attackIds.forEach((attackId) => {
-      const monsterAttack = data.find((attack) => attack.id === attackId);
+      const monsterAttack = DataUtils.getMonsterAttack(this.scene, attackId);
 
       if (monsterAttack !== undefined) this.monsterAttacks.push(monsterAttack);
     });
