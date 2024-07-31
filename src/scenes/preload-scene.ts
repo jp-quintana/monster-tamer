@@ -5,9 +5,8 @@ import {
   HEALTH_BAR_ASSET_KEYS,
   MONSTER_ASSET_KEYS,
   UI_ASSET_KEYS,
-} from '../assets/asset-keys.js';
-import { Phaser } from '../lib/phaser.js';
-import { SCENE_KEYS } from './scene-keys.js';
+} from '../assets/asset-keys.ts';
+import { SCENE_KEYS } from './scene-keys.ts';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
