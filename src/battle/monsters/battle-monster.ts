@@ -42,28 +42,23 @@ export class BattleMonster {
     });
   }
 
-  /** @type {boolean} */
-  get isFainted() {
+  get isFainted(): boolean {
     return this.currentHealth <= 0;
   }
 
-  /** @type {string} */
-  get name() {
+  get name(): string {
     return this.monsterDetails.name;
   }
 
-  /** @type {import('../../types/typedef.js').Attack[]} */
-  get attacks() {
+  get attacks(): Attack[] {
     return [...this.monsterAttacks];
   }
 
-  /** @type {number} */
-  get baseAttack() {
+  get baseAttack(): number {
     return this.monsterDetails.baseAttack;
   }
 
-  /** @type {number} */
-  get level() {
+  get level(): number {
     return this.monsterDetails.currentLevel;
   }
 

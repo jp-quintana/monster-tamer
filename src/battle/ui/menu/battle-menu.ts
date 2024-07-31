@@ -54,8 +54,7 @@ export class BattleMenu {
     this.createMonsterAttackSubMenu();
   }
 
-  /** @type {number | undefined}  */
-  get selectedAttack() {
+  get selectedAttack(): number | undefined {
     if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
       return this.selectedAttackIndex;
     }
@@ -235,8 +234,7 @@ export class BattleMenu {
       .setOrigin(0.5)
       .setScale(2.5);
 
-    /** @type {string[]} */
-    const attackNames = [];
+    const attackNames: string[] = [];
     for (let i = 0; i < 4; i++) {
       attackNames.push(this.activePlayerMonster.attacks[i]?.name || '-');
     }

@@ -105,8 +105,7 @@ export class BattleScene extends Phaser.Scene {
       this.battleMenu.handlePlayerInput('CANCEL');
       return;
     }
-    /** @type {import('../common/direction.js').Direction}  */
-    let selectedDirection = DIRECTION.NONE;
+    let selectedDirection: DIRECTION = DIRECTION.NONE;
     if (this.cursorKeys.left.isDown) {
       selectedDirection = DIRECTION.LEFT;
     } else if (this.cursorKeys.right.isDown) {
