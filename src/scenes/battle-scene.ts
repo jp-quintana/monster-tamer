@@ -4,6 +4,7 @@ import { EnemyBattleMonster } from '../battle/monsters/enemy-battle-monster.ts';
 import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts';
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
+import { StateMachine } from '../utils/state-machine.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
 export class BattleScene extends Phaser.Scene {
@@ -14,6 +15,7 @@ export class BattleScene extends Phaser.Scene {
   private activeEnemyMonster: EnemyBattleMonster;
   private activePlayerMonster: PlayerBattleMonster;
   private activePlayerAttackIndex: number;
+  private battleStateMachine: StateMachine;
 
   constructor() {
     super({
@@ -61,6 +63,22 @@ export class BattleScene extends Phaser.Scene {
 
     this.battleMenu = new BattleMenu(this, this.activePlayerMonster);
     this.battleMenu.showMainBattleMenu();
+
+    this.battleStateMachine = new StateMachine('battle');
+    this.battleStateMachine.addState({
+      name: 'INTRO',
+      onEnter: () => {
+        this.time.delayedCall(1000, () => {
+          this.battleStateMachine.setState('BATTLE');
+        });
+      },
+    });
+
+    this.battleStateMachine.addState({
+      name: 'BATTLE',
+    });
+
+    this.battleStateMachine.setState('INTRO');
 
     if (this.input.keyboard) {
       this.cursorKeys = {
