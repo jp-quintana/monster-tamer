@@ -54,7 +54,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [1],
-        baseAttack: 25,
+        baseAttack: 5,
       },
       scaleHealthBarBackgroundImageByY: 0.8,
     });
@@ -93,12 +93,28 @@ export class BattleScene extends Phaser.Scene {
 
   update() {
     this.battleStateMachine.update();
+
     // true only once and then goes back to false
     const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(
       this.cursorKeys.space
     );
     // true while held down
     // console.log(this.cursorKeys.space.isDown);
+
+    if (
+      wasSpaceKeyPressed &&
+      (this.battleStateMachine.currentStateName ===
+        BATTLE_STATES.PRE_BATTLE_INFO ||
+        this.battleStateMachine.currentStateName ===
+          BATTLE_STATES.POST_ATTACK_CHECK ||
+        this.battleStateMachine.currentStateName === BATTLE_STATES.FLEE_ATEMPT)
+    ) {
+      this.battleMenu.handlePlayerInput('OK');
+      return;
+    }
+
+    if (this.battleStateMachine.currentStateName !== BATTLE_STATES.PLAYER_INPUT)
+      return;
 
     if (wasSpaceKeyPressed) {
       this.battleMenu.handlePlayerInput('OK');
@@ -152,14 +168,12 @@ export class BattleScene extends Phaser.Scene {
       this.postBattleSequenceCheck();
       return;
     }
-    this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-      [
-        `${this.activePlayerMonster.name} used ${
-          this.activePlayerMonster.attacks[this.activePlayerAttackIndex].name
-        }`,
-      ],
+    this.battleMenu.updateInfoPanelMessagesNoInputRequired(
+      `${this.activePlayerMonster.name} used ${
+        this.activePlayerMonster.attacks[this.activePlayerAttackIndex].name
+      }`,
       () => {
-        this.time.delayedCall(500, () => {
+        this.time.delayedCall(1200, () => {
           this.activeEnemyMonster.takeDamage(
             this.activePlayerMonster.baseAttack,
             () => {
@@ -177,12 +191,10 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
 
-    this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-      [
-        `foe ${this.activeEnemyMonster.name} used ${this.activeEnemyMonster.attacks[0].name}`,
-      ],
+    this.battleMenu.updateInfoPanelMessagesNoInputRequired(
+      `foe ${this.activeEnemyMonster.name} used ${this.activeEnemyMonster.attacks[0].name}`,
       () => {
-        this.time.delayedCall(500, () => {
+        this.time.delayedCall(1200, () => {
           this.activePlayerMonster.takeDamage(
             this.activeEnemyMonster.baseAttack,
             () => {
@@ -246,6 +258,7 @@ export class BattleScene extends Phaser.Scene {
       },
     });
 
+    // TODO: fix bug when space bar is pressed rapidly
     this.battleStateMachine.addState({
       name: BATTLE_STATES.PRE_BATTLE_INFO,
       onEnter: () => {
@@ -266,11 +279,11 @@ export class BattleScene extends Phaser.Scene {
       name: BATTLE_STATES.BRING_OUT_MONSTER,
       onEnter: () => {
         // wait for player monster to appear on screen and notify the player about the monster
-        this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-          [`go ${this.activePlayerMonster.name}!`],
+        this.battleMenu.updateInfoPanelMessagesNoInputRequired(
+          `go ${this.activePlayerMonster.name}!`,
           () => {
             // wait for text animation to complete and move to next state
-            this.time.delayedCall(500, () => {
+            this.time.delayedCall(1200, () => {
               this.battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
             });
           }

@@ -22,6 +22,10 @@ const ATTACK_MOVE_CURSOR_POS = Object.freeze({
   y: 38,
 });
 
+const PLAYER_INPUT_CURSOR_POSITION = Object.freeze({
+  y: 488,
+});
+
 export class BattleMenu {
   private scene: Phaser.Scene;
   private mainBattleMenuPhaserContainerGameObject: Phaser.GameObjects.Container;
@@ -38,6 +42,8 @@ export class BattleMenu {
   private waitingForPlayerInput: boolean;
   private selectedAttackIndex: number | undefined;
   private activePlayerMonster: BattleMonster;
+  private userInputCursorPhaserImageGameObject: Phaser.GameObjects.Image;
+  private userInputCursorPhaserTween: Phaser.Tweens.Tween;
 
   constructor(scene: Phaser.Scene, activePlayerMonster: BattleMonster) {
     this.scene = scene;
@@ -52,6 +58,7 @@ export class BattleMenu {
     this.createMainInfoPane();
     this.createMainBattleMenu();
     this.createMonsterAttackSubMenu();
+    this.createPlayerInputCursor();
   }
 
   get selectedAttack(): number | undefined {
@@ -192,6 +199,19 @@ export class BattleMenu {
     );
 
     this.hideMainBattleMenu();
+  }
+
+  updateInfoPanelMessagesNoInputRequired(
+    message: string,
+    callback?: () => void
+  ) {
+    this.battleTextGameObjectLine1.setText('').setAlpha(1);
+
+    // TODO: animate message
+    this.battleTextGameObjectLine1.setText(message);
+    this.waitingForPlayerInput = false;
+
+    if (callback) callback();
   }
 
   updateInfoPanelMessagesAndWaitForInput(
@@ -556,5 +576,28 @@ export class BattleMenu {
     }
 
     this.selectedAttackIndex = selectedMoveIndex;
+  }
+
+  private createPlayerInputCursor() {
+    this.userInputCursorPhaserImageGameObject = this.scene.add.image(
+      0,
+      0,
+      UI_ASSET_KEYS.CURSOR
+    );
+    this.userInputCursorPhaserImageGameObject.setAngle(90).setScale(2.5, 1.25);
+    this.userInputCursorPhaserImageGameObject.setAlpha(0);
+
+    this.userInputCursorPhaserTween = this.scene.add.tween({
+      delay: 0,
+      duration: 500,
+      repeat: -1,
+      y: {
+        from: PLAYER_INPUT_CURSOR_POSITION.y,
+        start: PLAYER_INPUT_CURSOR_POSITION.y,
+        to: PLAYER_INPUT_CURSOR_POSITION.y + 6,
+      },
+      targets: this.userInputCursorPhaserImageGameObject,
+    });
+    this.userInputCursorPhaserTween.pause();
   }
 }
