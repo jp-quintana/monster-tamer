@@ -100,6 +100,21 @@ export class BattleMenu {
     this.moveSelectionSubBattleMenuPhaserContainerGameObject.setAlpha(0);
   }
 
+  playInputCursorAnimation() {
+    this.userInputCursorPhaserImageGameObject.setPosition(
+      this.battleTextGameObjectLine1.displayWidth +
+        this.userInputCursorPhaserImageGameObject.displayWidth * 2.7,
+      this.userInputCursorPhaserImageGameObject.y
+    );
+    this.userInputCursorPhaserImageGameObject.setAlpha(1);
+    this.userInputCursorPhaserTween.restart();
+  }
+
+  hideInputCursor() {
+    this.userInputCursorPhaserImageGameObject.setAlpha(0);
+    this.userInputCursorPhaserTween.pause();
+  }
+
   handlePlayerInput(input: DIRECTION | 'OK' | 'CANCEL') {
     if (this.waitingForPlayerInput) {
       if (input === 'OK' || input === 'CANCEL') {
@@ -228,6 +243,8 @@ export class BattleMenu {
     this.waitingForPlayerInput = false;
     this.battleTextGameObjectLine1.setText('').setAlpha(1);
 
+    this.hideInputCursor();
+
     // check if all messages have been displayed from the queue and call the callback
     if (this.queuedInfoPanelMessages.length === 0) {
       if (this.queuedInfoPanelCallback) {
@@ -241,6 +258,7 @@ export class BattleMenu {
     const messageToDisplay = this.queuedInfoPanelMessages.shift();
     this.battleTextGameObjectLine1.setText(messageToDisplay as string);
     this.waitingForPlayerInput = true;
+    this.playInputCursorAnimation();
   }
 
   private createMonsterAttackSubMenu() {
@@ -506,6 +524,8 @@ export class BattleMenu {
   }
 
   private switchToMainBattleMenu() {
+    this.waitingForPlayerInput = false;
+    this.hideInputCursor();
     this.hideMonsterAttackSubMenu();
     this.showMainBattleMenu();
   }
