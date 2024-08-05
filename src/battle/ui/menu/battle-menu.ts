@@ -12,6 +12,7 @@ import {
 } from './battle-menu-options.ts';
 import { BattleMonster } from '../../monsters/battle-monster.js';
 import { animateText } from '../../../utils/text-utils.ts';
+import { SKIP_BATTLE_ANIMATIONS } from '../../../config.ts';
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
   x: 42,
@@ -279,12 +280,10 @@ export class BattleMenu {
       this.battleTextGameObjectLine1.setText(messageToDisplay as string);
       this.queuedAnimationPlaying = false;
       this.waitingForPlayerInput = true;
-      if (this.queuedInfoPanelCallback) {
-        this.queuedInfoPanelCallback();
-        this.queuedInfoPanelCallback = undefined;
-      }
+      this.playInputCursorAnimation();
       return;
     }
+
     this.queuedAnimationPlaying = true;
     animateText(
       this.scene,
@@ -585,7 +584,8 @@ export class BattleMenu {
         ['Your bag is empty...'],
         () => {
           this.switchToMainBattleMenu();
-        }
+        },
+        SKIP_BATTLE_ANIMATIONS
       );
       return;
     }
@@ -596,7 +596,8 @@ export class BattleMenu {
         ['Your have no other monsters in your party...'],
         () => {
           this.switchToMainBattleMenu();
-        }
+        },
+        SKIP_BATTLE_ANIMATIONS
       );
       return;
     }
@@ -607,7 +608,8 @@ export class BattleMenu {
         ['Your fail to run away...'],
         () => {
           this.switchToMainBattleMenu();
-        }
+        },
+        SKIP_BATTLE_ANIMATIONS
       );
       return;
     }

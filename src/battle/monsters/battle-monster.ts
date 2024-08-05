@@ -17,6 +17,7 @@ export class BattleMonster {
   protected maxHealth: number;
   protected monsterAttacks: Attack[];
   protected phaserHealthBarGameContainer: Phaser.GameObjects.Container;
+  protected skipBattleAnimations: boolean;
 
   constructor(config: BattleMonsterConfig, position: Coordinate) {
     this.scene = config.scene;
@@ -24,6 +25,7 @@ export class BattleMonster {
     this.currentHealth = this.monsterDetails.currentHp;
     this.maxHealth = this.monsterDetails.maxHp;
     this.monsterAttacks = [];
+    this.skipBattleAnimations = config.skipBattleAnimations || false;
 
     this.phaserGameObject = this.scene.add
       .image(
@@ -84,6 +86,12 @@ export class BattleMonster {
   }
 
   playTakeDamageAnimation(callback: () => void) {
+    if (this.skipBattleAnimations) {
+      this.phaserGameObject.setAlpha(1);
+      callback();
+      return;
+    }
+
     this.scene.tweens.add({
       delay: 0,
       duration: 150,
@@ -102,6 +110,11 @@ export class BattleMonster {
   }
 
   playDeathAnimation(callback: () => void) {
+    if (this.skipBattleAnimations) {
+      callback();
+      return;
+    }
+
     const startYPos = this.phaserGameObject.y;
     const endYPos = startYPos + 400;
 

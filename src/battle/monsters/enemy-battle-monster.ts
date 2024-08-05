@@ -17,6 +17,12 @@ export class EnemyBattleMonster extends BattleMonster {
     this.phaserGameObject.setPosition(startXPos, ENEMY_POSITION.y);
     this.phaserGameObject.setAlpha(1);
 
+    if (this.skipBattleAnimations) {
+      this.phaserGameObject.setX(ENEMY_POSITION.x);
+      callback();
+      return;
+    }
+
     this.scene.tweens.add({
       delay: 0,
       duration: 1600,
@@ -40,6 +46,12 @@ export class EnemyBattleMonster extends BattleMonster {
       this.phaserHealthBarGameContainer.y
     );
     this.phaserHealthBarGameContainer.setAlpha(1);
+
+    if (this.skipBattleAnimations) {
+      this.phaserHealthBarGameContainer.setX(endXPos);
+      callback();
+      return;
+    }
 
     this.scene.tweens.add({
       delay: 0,

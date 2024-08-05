@@ -4,6 +4,7 @@ import { EnemyBattleMonster } from '../battle/monsters/enemy-battle-monster.ts';
 import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts';
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
+import { SKIP_BATTLE_ANIMATIONS } from '../config.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
@@ -56,7 +57,7 @@ export class BattleScene extends Phaser.Scene {
         attackIds: [1],
         baseAttack: 15,
       },
-      scaleHealthBarBackgroundImageByY: 0.8,
+      skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
     });
 
     this.activePlayerMonster = new PlayerBattleMonster({
@@ -71,6 +72,7 @@ export class BattleScene extends Phaser.Scene {
         attackIds: [2],
         baseAttack: 25,
       },
+      skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
     });
 
     this.battleMenu = new BattleMenu(this, this.activePlayerMonster);
@@ -183,7 +185,8 @@ export class BattleScene extends Phaser.Scene {
             )
           );
         });
-      }
+      },
+      SKIP_BATTLE_ANIMATIONS
     );
   }
 
@@ -222,7 +225,8 @@ export class BattleScene extends Phaser.Scene {
           ],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          }
+          },
+          SKIP_BATTLE_ANIMATIONS
         );
       });
       return;
@@ -237,7 +241,8 @@ export class BattleScene extends Phaser.Scene {
           ],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          }
+          },
+          SKIP_BATTLE_ANIMATIONS
         );
       });
       return;
@@ -284,7 +289,8 @@ export class BattleScene extends Phaser.Scene {
                   BATTLE_STATES.BRING_OUT_MONSTER
                 );
               });
-            }
+            },
+            SKIP_BATTLE_ANIMATIONS
           );
         });
       },
@@ -305,7 +311,8 @@ export class BattleScene extends Phaser.Scene {
               this.time.delayedCall(1200, () => {
                 this.battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
               });
-            }
+            },
+            SKIP_BATTLE_ANIMATIONS
           );
         });
       },
@@ -362,7 +369,8 @@ export class BattleScene extends Phaser.Scene {
           ['You got away safely!'],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          }
+          },
+          SKIP_BATTLE_ANIMATIONS
         );
       },
     });
