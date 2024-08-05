@@ -264,7 +264,7 @@ export class BattleScene extends Phaser.Scene {
       onEnter: () => {
         // wait for enemy monster to appear on screen and notify player about the wild monster
         this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-          [`wild ${this.activeEnemyMonster.name} appeared`],
+          [`wild ${this.activeEnemyMonster.name} appeared!`],
           () => {
             // wait for text animation to complete and move to next state
             this.time.delayedCall(500, () => {

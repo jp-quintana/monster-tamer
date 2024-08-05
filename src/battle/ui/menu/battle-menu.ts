@@ -11,6 +11,7 @@ import {
   BATTLE_MENU_OPTIONS,
 } from './battle-menu-options.ts';
 import { BattleMonster } from '../../monsters/battle-monster.js';
+import { animateText } from '../../../utils/text-utils.ts';
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
   x: 42,
@@ -44,6 +45,8 @@ export class BattleMenu {
   private activePlayerMonster: BattleMonster;
   private userInputCursorPhaserImageGameObject: Phaser.GameObjects.Image;
   private userInputCursorPhaserTween: Phaser.Tweens.Tween;
+  private queuedMessagesSkipAnimation: boolean;
+  private queuedAnimationPlaying: boolean;
 
   constructor(scene: Phaser.Scene, activePlayerMonster: BattleMonster) {
     this.scene = scene;
@@ -55,6 +58,8 @@ export class BattleMenu {
     this.queuedInfoPanelMessages = [];
     this.waitingForPlayerInput = false;
     this.selectedAttackIndex = undefined;
+    this.queuedMessagesSkipAnimation = false;
+    this.queuedAnimationPlaying = false;
     this.createMainInfoPane();
     this.createMainBattleMenu();
     this.createMonsterAttackSubMenu();
@@ -116,6 +121,7 @@ export class BattleMenu {
   }
 
   handlePlayerInput(input: DIRECTION | 'OK' | 'CANCEL') {
+    if (this.queuedAnimationPlaying && input === 'OK') return;
     if (this.waitingForPlayerInput) {
       if (input === 'OK' || input === 'CANCEL') {
         this.updateInfoPaneWithMessage();
@@ -218,23 +224,36 @@ export class BattleMenu {
 
   updateInfoPanelMessagesNoInputRequired(
     message: string,
-    callback?: () => void
+    callback?: () => void,
+    skipAnimation = false
   ) {
     this.battleTextGameObjectLine1.setText('').setAlpha(1);
 
-    // TODO: animate message
-    this.battleTextGameObjectLine1.setText(message);
-    this.waitingForPlayerInput = false;
+    if (skipAnimation) {
+      this.battleTextGameObjectLine1.setText(message);
+      this.waitingForPlayerInput = false;
 
-    if (callback) callback();
+      if (callback) callback();
+      return;
+    }
+
+    animateText(this.scene, this.battleTextGameObjectLine1, message, {
+      delay: 50,
+      callback: () => {
+        this.waitingForPlayerInput = false;
+        if (callback) callback();
+      },
+    });
   }
 
   updateInfoPanelMessagesAndWaitForInput(
     messages: string[],
-    callback?: () => void
+    callback?: () => void,
+    skipAnimation = false
   ) {
     this.queuedInfoPanelMessages = messages;
     this.queuedInfoPanelCallback = callback;
+    this.queuedMessagesSkipAnimation = skipAnimation;
 
     this.updateInfoPaneWithMessage();
   }
@@ -254,11 +273,32 @@ export class BattleMenu {
       return;
     }
 
-    // get first message from queue and animate message
     const messageToDisplay = this.queuedInfoPanelMessages.shift();
-    this.battleTextGameObjectLine1.setText(messageToDisplay as string);
-    this.waitingForPlayerInput = true;
-    this.playInputCursorAnimation();
+
+    if (this.queuedMessagesSkipAnimation) {
+      this.battleTextGameObjectLine1.setText(messageToDisplay as string);
+      this.queuedAnimationPlaying = false;
+      this.waitingForPlayerInput = true;
+      if (this.queuedInfoPanelCallback) {
+        this.queuedInfoPanelCallback();
+        this.queuedInfoPanelCallback = undefined;
+      }
+      return;
+    }
+    this.queuedAnimationPlaying = true;
+    animateText(
+      this.scene,
+      this.battleTextGameObjectLine1,
+      messageToDisplay as string,
+      {
+        delay: 50,
+        callback: () => {
+          this.playInputCursorAnimation();
+          this.waitingForPlayerInput = true;
+          this.queuedAnimationPlaying = false;
+        },
+      }
+    );
   }
 
   private createMonsterAttackSubMenu() {
