@@ -54,7 +54,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [1],
-        baseAttack: 5,
+        baseAttack: 15,
       },
       scaleHealthBarBackgroundImageByY: 0.8,
     });
@@ -69,7 +69,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [2],
-        baseAttack: 5,
+        baseAttack: 25,
       },
     });
 
@@ -173,12 +173,14 @@ export class BattleScene extends Phaser.Scene {
         this.activePlayerMonster.attacks[this.activePlayerAttackIndex].name
       }`,
       () => {
-        this.time.delayedCall(1200, () => {
-          this.activeEnemyMonster.takeDamage(
-            this.activePlayerMonster.baseAttack,
-            () => {
-              this.enemyAttack();
-            }
+        this.time.delayedCall(500, () => {
+          this.activeEnemyMonster.playTakeDamageAnimation(() =>
+            this.activeEnemyMonster.takeDamage(
+              this.activePlayerMonster.baseAttack,
+              () => {
+                this.enemyAttack();
+              }
+            )
           );
         });
       }
@@ -194,13 +196,17 @@ export class BattleScene extends Phaser.Scene {
     this.battleMenu.updateInfoPanelMessagesNoInputRequired(
       `foe ${this.activeEnemyMonster.name} used ${this.activeEnemyMonster.attacks[0].name}`,
       () => {
-        this.time.delayedCall(1200, () => {
-          this.activePlayerMonster.takeDamage(
-            this.activeEnemyMonster.baseAttack,
-            () => {
-              this.battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
-            }
-          );
+        this.time.delayedCall(500, () => {
+          this.activePlayerMonster.playTakeDamageAnimation(() => {
+            this.activePlayerMonster.takeDamage(
+              this.activeEnemyMonster.baseAttack,
+              () => {
+                this.battleStateMachine.setState(
+                  BATTLE_STATES.POST_ATTACK_CHECK
+                );
+              }
+            );
+          });
         });
       }
     );
@@ -208,28 +214,32 @@ export class BattleScene extends Phaser.Scene {
 
   private postBattleSequenceCheck() {
     if (this.activeEnemyMonster.isFainted) {
-      this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-        [
-          `Wild ${this.activeEnemyMonster.name} fainted`,
-          'You have gained some experience',
-        ],
-        () => {
-          this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-        }
-      );
+      this.activeEnemyMonster.playDeathAnimation(() => {
+        this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
+          [
+            `Wild ${this.activeEnemyMonster.name} fainted`,
+            'You have gained some experience',
+          ],
+          () => {
+            this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
+          }
+        );
+      });
       return;
     }
 
     if (this.activePlayerMonster.isFainted) {
-      this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-        [
-          `${this.activePlayerMonster.name} fainted`,
-          'You have no more monsters, escaping to safety...',
-        ],
-        () => {
-          this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-        }
-      );
+      this.activePlayerMonster.playDeathAnimation(() => {
+        this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
+          [
+            `${this.activePlayerMonster.name} fainted`,
+            'You have no more monsters, escaping to safety...',
+          ],
+          () => {
+            this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
+          }
+        );
+      });
       return;
     }
 
@@ -263,15 +273,20 @@ export class BattleScene extends Phaser.Scene {
       name: BATTLE_STATES.PRE_BATTLE_INFO,
       onEnter: () => {
         // wait for enemy monster to appear on screen and notify player about the wild monster
-        this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
-          [`wild ${this.activeEnemyMonster.name} appeared!`],
-          () => {
-            // wait for text animation to complete and move to next state
-            this.time.delayedCall(500, () => {
-              this.battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
-            });
-          }
-        );
+        this.activeEnemyMonster.playMonsterAppearAnimation(() => {
+          this.activeEnemyMonster.playHealthBarAppearAnimation(() => undefined);
+          this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
+            [`wild ${this.activeEnemyMonster.name} appeared!`],
+            () => {
+              // wait for text animation to complete and move to next state
+              this.time.delayedCall(500, () => {
+                this.battleStateMachine.setState(
+                  BATTLE_STATES.BRING_OUT_MONSTER
+                );
+              });
+            }
+          );
+        });
       },
     });
 
@@ -279,15 +294,20 @@ export class BattleScene extends Phaser.Scene {
       name: BATTLE_STATES.BRING_OUT_MONSTER,
       onEnter: () => {
         // wait for player monster to appear on screen and notify the player about the monster
-        this.battleMenu.updateInfoPanelMessagesNoInputRequired(
-          `go ${this.activePlayerMonster.name}!`,
-          () => {
-            // wait for text animation to complete and move to next state
-            this.time.delayedCall(1200, () => {
-              this.battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
-            });
-          }
-        );
+        this.activePlayerMonster.playMonsterAppearAnimation(() => {
+          this.activePlayerMonster.playHealthBarAppearAnimation(
+            () => undefined
+          );
+          this.battleMenu.updateInfoPanelMessagesNoInputRequired(
+            `go ${this.activePlayerMonster.name}!`,
+            () => {
+              // wait for text animation to complete and move to next state
+              this.time.delayedCall(1200, () => {
+                this.battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
+              });
+            }
+          );
+        });
       },
     });
 

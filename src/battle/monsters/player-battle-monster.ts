@@ -17,6 +17,51 @@ export class PlayerBattleMonster extends BattleMonster {
     this.addHealthBarComponents();
   }
 
+  playMonsterAppearAnimation(callback: () => void) {
+    const startXPos = -30;
+    const endXPost = PLAYER_POSITION.x;
+    this.phaserGameObject.setPosition(startXPos, PLAYER_POSITION.y);
+    this.phaserGameObject.setAlpha(1);
+
+    this.scene.tweens.add({
+      delay: 0,
+      duration: 800,
+      x: {
+        from: startXPos,
+        start: startXPos,
+        to: endXPost,
+      },
+      targets: this.phaserGameObject,
+      onComplete: () => {
+        callback();
+      },
+    });
+  }
+
+  playHealthBarAppearAnimation(callback: () => void) {
+    const startXPos = 800;
+    const endXPost = this.phaserHealthBarGameContainer.x;
+    this.phaserHealthBarGameContainer.setPosition(
+      startXPos,
+      this.phaserHealthBarGameContainer.y
+    );
+    this.phaserHealthBarGameContainer.setAlpha(1);
+
+    this.scene.tweens.add({
+      delay: 0,
+      duration: 800,
+      x: {
+        from: startXPos,
+        start: startXPos,
+        to: endXPost,
+      },
+      targets: this.phaserHealthBarGameContainer,
+      onComplete: () => {
+        callback();
+      },
+    });
+  }
+
   private setHealthBarText() {
     this.healthBarTextGameObject.setText(
       `${this.currentHealth}/${this.maxHealth}`

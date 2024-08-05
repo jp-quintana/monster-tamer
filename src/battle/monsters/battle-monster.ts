@@ -25,12 +25,14 @@ export class BattleMonster {
     this.maxHealth = this.monsterDetails.maxHp;
     this.monsterAttacks = [];
 
-    this.phaserGameObject = this.scene.add.image(
-      position.x,
-      position.y,
-      this.monsterDetails.assetKey,
-      this.monsterDetails.assetFrame || 0
-    );
+    this.phaserGameObject = this.scene.add
+      .image(
+        position.x,
+        position.y,
+        this.monsterDetails.assetKey,
+        this.monsterDetails.assetFrame || 0
+      )
+      .setAlpha(0);
 
     this.createHealthbarComponents(config.scaleHealthBarBackgroundImageByY);
 
@@ -73,6 +75,56 @@ export class BattleMonster {
     );
   }
 
+  playMonsterAppearAnimation(callback: () => void) {
+    throw new Error('playMonsterAppearAnimation is not implemented');
+  }
+
+  playHealthBarAppearAnimation(callback: () => void) {
+    throw new Error('playHealthBarAppearAnimation is not implemented');
+  }
+
+  playTakeDamageAnimation(callback: () => void) {
+    this.scene.tweens.add({
+      delay: 0,
+      duration: 150,
+      targets: this.phaserGameObject,
+      alpha: {
+        from: 1,
+        start: 1,
+        to: 0,
+      },
+      repeat: 10,
+      onComplete: () => {
+        this.phaserGameObject.setAlpha(1);
+        callback();
+      },
+    });
+  }
+
+  playDeathAnimation(callback: () => void) {
+    const startYPos = this.phaserGameObject.y;
+    const endYPos = startYPos + 400;
+
+    this.scene.tweens.add({
+      delay: 0,
+      duration: 500,
+      y: {
+        from: startYPos,
+        start: startYPos,
+        to: endYPos,
+      },
+      alpha: {
+        from: 1,
+        start: 1,
+        to: 0,
+      },
+      targets: this.phaserGameObject,
+      onComplete: () => {
+        callback();
+      },
+    });
+  }
+
   private createHealthbarComponents(scaleHealthBarBackgroundImageByY = 1) {
     this.healthBar = new HealthBar(this.scene, 34, 34);
 
@@ -102,12 +154,14 @@ export class BattleMonster {
       fontStyle: 'italic',
     });
 
-    this.phaserHealthBarGameContainer = this.scene.add.container(0, 0, [
-      healthbarBgImage,
-      monsterNameGameText,
-      this.healthBar.container,
-      monsterHealthBarLevelText,
-      monsterHpText,
-    ]);
+    this.phaserHealthBarGameContainer = this.scene.add
+      .container(0, 0, [
+        healthbarBgImage,
+        monsterNameGameText,
+        this.healthBar.container,
+        monsterHealthBarLevelText,
+        monsterHpText,
+      ])
+      .setAlpha(0);
   }
 }
