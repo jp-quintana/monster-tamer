@@ -7,6 +7,8 @@ import {
   UI_ASSET_KEYS,
 } from '../assets/asset-keys.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
+import * as WebFontLoader from '../lib/webfontloader.ts';
+import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys.ts';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -82,6 +84,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
   }
   create() {
-    this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+    // load font before starting scene
+    WebFontLoader.default.load({
+      custom: { families: [KENNEY_FUTURE_NARROW_FONT_NAME] },
+      active: () => {
+        this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+      },
+    });
   }
 }
