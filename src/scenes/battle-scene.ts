@@ -1,4 +1,5 @@
 import { MONSTER_ASSET_KEYS } from '../assets/asset-keys.ts';
+import { IceShard } from '../battle/attacks/ice-shard.ts';
 import { Background } from '../battle/background.ts';
 import { EnemyBattleMonster } from '../battle/monsters/enemy-battle-monster.ts';
 import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts';
@@ -86,11 +87,7 @@ export class BattleScene extends Phaser.Scene {
       };
     }
 
-    // this.activeEnemyMonster.takeDamage(15, () => {
-    //   this.activePlayerMonster.takeDamage(15, () => {
-    //     console.log(this.activeEnemyMonster.isFainted);
-    //   });
-    // });
+    const atk = new IceShard(this, { x: 745, y: 140 });
   }
 
   update() {
