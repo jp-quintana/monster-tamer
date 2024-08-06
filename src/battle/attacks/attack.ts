@@ -20,7 +20,7 @@ export class Attack {
     return this.attackGameObject;
   }
 
-  playAnimation(callback: () => void) {
+  playAnimation(callback?: () => void) {
     throw new Error('play animation is not implemented');
   }
 }

@@ -88,6 +88,9 @@ export class BattleScene extends Phaser.Scene {
     }
 
     const atk = new IceShard(this, { x: 745, y: 140 });
+    atk.playAnimation(() => {
+      atk.playAnimation();
+    });
   }
 
   update() {
