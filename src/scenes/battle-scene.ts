@@ -9,6 +9,7 @@ import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
 import { SKIP_BATTLE_ANIMATIONS } from '../config.ts';
+import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
@@ -281,8 +282,10 @@ export class BattleScene extends Phaser.Scene {
       name: BATTLE_STATES.INTRO,
       onEnter: () => {
         // wait for any scene setup and transitions to complete
-        this.time.delayedCall(500, () => {
-          this.battleStateMachine.setState(BATTLE_STATES.PRE_BATTLE_INFO);
+        createSceneTransition(this, {
+          callback: () =>
+            this.battleStateMachine.setState(BATTLE_STATES.PRE_BATTLE_INFO),
+          skipSceneTransition: SKIP_BATTLE_ANIMATIONS,
         });
       },
     });
