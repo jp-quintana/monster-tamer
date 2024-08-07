@@ -28,7 +28,6 @@ export class IceShard extends Attack {
     });
 
     // create game objects
-
     this.attackGameObject = this.scene.add
       .sprite(this.position.x, this.position.y, ATTACK_ASSET_KEYS.ICE_SHARD, 5)
       .setOrigin(0.5)

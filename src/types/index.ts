@@ -1,3 +1,5 @@
+import { ATTACK_KEYS } from '../battle/attacks/attack-keys';
+
 export interface BattleMonsterConfig {
   scene: Phaser.Scene;
   monsterDetails: Monster;
@@ -24,5 +26,5 @@ export interface Coordinate {
 export interface Attack {
   id: number;
   name: string;
-  animationName: string;
+  animationName: ATTACK_KEYS;
 }
