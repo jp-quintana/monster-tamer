@@ -33,3 +33,7 @@ export const ATTACK_ASSET_KEYS = Object.freeze({
   ICE_SHARD_START: 'ICE_SHARD_START',
   SLASH: 'SLASH',
 });
+
+export const enum WORLD_ASSET_KEYS {
+  WORLD_BACKGROUND = 'WORLD_BACKGROUND',
+}

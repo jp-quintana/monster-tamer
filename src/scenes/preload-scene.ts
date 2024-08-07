@@ -6,6 +6,7 @@ import {
   HEALTH_BAR_ASSET_KEYS,
   MONSTER_ASSET_KEYS,
   UI_ASSET_KEYS,
+  WORLD_ASSET_KEYS,
 } from '../assets/asset-keys.ts';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys.ts';
 import { WebFontFileLoader } from '../assets/web-font-file-loader.ts';
@@ -115,8 +116,15 @@ export class PreloadScene extends Phaser.Scene {
         frameHeight: 48,
       }
     );
+
+    // load world assets
+    this.load.image(
+      WORLD_ASSET_KEYS.WORLD_BACKGROUND,
+      `${monsterTamerAssetPath}/map/level_background.png`
+    );
   }
+
   create() {
-    this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+    this.scene.start(SCENE_KEYS.WORLD_SCENE);
   }
 }
