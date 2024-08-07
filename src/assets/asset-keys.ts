@@ -37,3 +37,8 @@ export const ATTACK_ASSET_KEYS = Object.freeze({
 export const enum WORLD_ASSET_KEYS {
   WORLD_BACKGROUND = 'WORLD_BACKGROUND',
 }
+
+export const enum CHARACTER_ASSET_KEYS {
+  PLAYER = 'PLAYER',
+  NPC = 'NPC',
+}
