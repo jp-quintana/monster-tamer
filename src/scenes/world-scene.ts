@@ -24,13 +24,17 @@ export class WorldScene extends Phaser.Scene {
   create() {
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
-    this.player = new Player({ scene: this, position: PLAYER_POSITION });
+    this.player = new Player({
+      scene: this,
+      position: PLAYER_POSITION,
+      direction: DIRECTION.DOWN,
+    });
 
     this.controls = new Controls(this);
   }
 
   update() {
-    const selectedDirection = this.controls.getDirectionKeyJustPressed();
+    const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
     if (selectedDirection !== DIRECTION.NONE) {
       this.player.moveCharacter(selectedDirection);
