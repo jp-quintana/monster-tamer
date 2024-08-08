@@ -9,6 +9,7 @@ import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
 import { SKIP_BATTLE_ANIMATIONS } from '../config.ts';
+import { Controls } from '../utils/controls.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
@@ -27,9 +28,7 @@ const enum BATTLE_STATES {
 
 export class BattleScene extends Phaser.Scene {
   private battleMenu: BattleMenu;
-  private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys & {
-    esc: Phaser.Input.Keyboard.Key;
-  };
+  private controls: Controls;
   private activeEnemyMonster: EnemyBattleMonster;
   private activePlayerMonster: PlayerBattleMonster;
   private activePlayerAttackIndex: number;
@@ -87,21 +86,14 @@ export class BattleScene extends Phaser.Scene {
 
     this.attackManager = new AttackManager(this, SKIP_BATTLE_ANIMATIONS);
 
-    if (this.input.keyboard) {
-      this.cursorKeys = {
-        esc: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
-        ...this.input.keyboard.createCursorKeys(),
-      };
-    }
+    this.controls = new Controls(this);
   }
 
   update() {
     this.battleStateMachine.update();
 
     // true only once and then goes back to false
-    const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(
-      this.cursorKeys.space
-    );
+    const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
     // true while held down
     // console.log(this.cursorKeys.space.isDown);
 
@@ -137,20 +129,12 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.cursorKeys.esc)) {
+    if (this.controls.wasEscKeyPressed()) {
       this.battleMenu.handlePlayerInput('CANCEL');
       return;
     }
-    let selectedDirection: DIRECTION = DIRECTION.NONE;
-    if (this.cursorKeys.left.isDown) {
-      selectedDirection = DIRECTION.LEFT;
-    } else if (this.cursorKeys.right.isDown) {
-      selectedDirection = DIRECTION.RIGHT;
-    } else if (this.cursorKeys.up.isDown) {
-      selectedDirection = DIRECTION.UP;
-    } else if (this.cursorKeys.down.isDown) {
-      selectedDirection = DIRECTION.DOWN;
-    }
+
+    const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
     if (selectedDirection !== DIRECTION.NONE)
       this.battleMenu.handlePlayerInput(selectedDirection);
