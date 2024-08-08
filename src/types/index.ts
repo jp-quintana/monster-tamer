@@ -28,3 +28,13 @@ export interface Attack {
   name: string;
   animationName: ATTACK_KEYS;
 }
+
+export interface Animation {
+  key: 'string';
+  frames?: number[];
+  frameRate: number;
+  repeat: number;
+  delay: number;
+  yoyo: boolean;
+  assetKey: string;
+}

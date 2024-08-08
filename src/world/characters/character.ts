@@ -90,7 +90,7 @@ export class Character {
 
     this.scene.add.tween({
       delay: 0,
-      duration: 300,
+      duration: 400,
       y: {
         from: this.previousTargetPosition.y,
         start: this.previousTargetPosition.y,

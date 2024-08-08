@@ -11,6 +11,7 @@ import {
 } from '../assets/asset-keys.ts';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys.ts';
 import { WebFontFileLoader } from '../assets/web-font-file-loader.ts';
+import { DataUtils } from '../utils/data-utils.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
 export class PreloadScene extends Phaser.Scene {
@@ -88,6 +89,7 @@ export class PreloadScene extends Phaser.Scene {
 
     // load json data
     this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
+    this.load.json(DATA_ASSET_KEYS.ANIMATIONS, 'assets/data/animations.json');
 
     // load custom fonts
     this.load.addFile(
@@ -147,6 +149,27 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    this.createAnimations();
     this.scene.start(SCENE_KEYS.WORLD_SCENE);
+  }
+
+  private createAnimations() {
+    const animations = DataUtils.getAnimations(this);
+    animations.forEach((animation) => {
+      const frames = animation.frames
+        ? this.anims.generateFrameNumbers(animation.assetKey, {
+            frames: [...animation.frames],
+          })
+        : this.anims.generateFrameNumbers(animation.assetKey);
+
+      this.anims.create({
+        key: animation.key,
+        frames,
+        frameRate: animation.frameRate,
+        repeat: animation.repeat,
+        delay: animation.delay,
+        yoyo: animation.yoyo,
+      });
+    });
   }
 }
