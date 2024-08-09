@@ -33,11 +33,13 @@ export class WorldScene extends Phaser.Scene {
     this.controls = new Controls(this);
   }
 
-  update() {
+  update(time: DOMHighResTimeStamp) {
     const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
     if (selectedDirection !== DIRECTION.NONE) {
       this.player.moveCharacter(selectedDirection);
     }
+
+    this.player.update(time);
   }
 }

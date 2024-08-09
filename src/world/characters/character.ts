@@ -57,6 +57,12 @@ export class Character {
     this.moveSprite(direction);
   }
 
+  update(time: DOMHighResTimeStamp) {
+    if (this._isMoving) return;
+
+    this.phaserGameObject.anims.stop();
+  }
+
   protected moveSprite(direction: DIRECTION) {
     this._direction = direction;
     if (this.isBlockingTile()) return;
@@ -90,7 +96,7 @@ export class Character {
 
     this.scene.add.tween({
       delay: 0,
-      duration: 400,
+      duration: 300,
       y: {
         from: this.previousTargetPosition.y,
         start: this.previousTargetPosition.y,
