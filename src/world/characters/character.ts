@@ -40,10 +40,14 @@ export class Character {
     this.previousTargetPosition = { ...position };
     this._origin = origin ? { ...origin } : { x: 0, y: 0 };
     this.phaserGameObject = this.scene.add
-      .sprite(position.x, position.y, assetKey, this.getIdleFrame())
+      .sprite(position.x, position.y, assetKey, this.IdleFrame)
       .setOrigin(this._origin.x, this._origin.y);
     this.spriteGridMovementFinishedCallback =
       spriteGridMovementFinishedCallback;
+  }
+
+  get sprite() {
+    return this.phaserGameObject;
   }
 
   get isMoving() {
@@ -54,14 +58,15 @@ export class Character {
     return this._direction;
   }
 
+  // ep 41
+  protected get IdleFrame() {
+    return idleFrame[this.direction];
+  }
+
   moveCharacter(direction: DIRECTION) {
     if (this._isMoving) return;
 
     this.moveSprite(direction);
-  }
-
-  protected getIdleFrame() {
-    return idleFrame[this.direction];
   }
 
   update(time: DOMHighResTimeStamp) {

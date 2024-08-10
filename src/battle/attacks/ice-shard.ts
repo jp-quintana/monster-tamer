@@ -7,26 +7,6 @@ export class IceShard extends Attack {
   constructor(scene: Phaser.Scene, position: Coordinate) {
     super(scene, position);
 
-    // create animations
-    this.scene.anims.create({
-      key: ATTACK_ASSET_KEYS.ICE_SHARD,
-      frames: this.scene.anims.generateFrameNumbers(
-        ATTACK_ASSET_KEYS.ICE_SHARD
-      ),
-      frameRate: 8,
-      repeat: 0,
-      delay: 0,
-    });
-    this.scene.anims.create({
-      key: ATTACK_ASSET_KEYS.ICE_SHARD_START,
-      frames: this.scene.anims.generateFrameNumbers(
-        ATTACK_ASSET_KEYS.ICE_SHARD_START
-      ),
-      frameRate: 8,
-      repeat: 0,
-      delay: 0,
-    });
-
     // create game objects
     this.attackGameObject = this.scene.add
       .sprite(this.position.x, this.position.y, ATTACK_ASSET_KEYS.ICE_SHARD, 5)

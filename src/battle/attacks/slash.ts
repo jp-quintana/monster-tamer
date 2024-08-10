@@ -14,15 +14,6 @@ export class Slash extends Attack {
 
     this.isAnimationPlaying = false;
 
-    // create animations
-    this.scene.anims.create({
-      key: ATTACK_ASSET_KEYS.SLASH,
-      frames: this.scene.anims.generateFrameNumbers(ATTACK_ASSET_KEYS.SLASH),
-      frameRate: 4,
-      repeat: 0,
-      delay: 0,
-    });
-
     // create game objects
     this.attackGameObject1 = this.scene.add
       .sprite(0, 0, ATTACK_ASSET_KEYS.SLASH, 0)

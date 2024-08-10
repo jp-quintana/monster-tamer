@@ -7,8 +7,8 @@ import { Player } from '../world/characters/player';
 import { SCENE_KEYS } from './scene-keys';
 
 const PLAYER_POSITION: Coordinate = Object.freeze({
-  x: 1 * TILE_SIZE,
-  y: 0 * TILE_SIZE,
+  x: 6 * TILE_SIZE,
+  y: 21 * TILE_SIZE,
 });
 
 export class WorldScene extends Phaser.Scene {
@@ -22,6 +22,13 @@ export class WorldScene extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.setBounds(0, 0, 1280, 2176);
+    this.cameras.main.setZoom(0.8);
+
+    const x = 6 * TILE_SIZE;
+    const y = 22 * TILE_SIZE;
+    this.cameras.main.centerOn(x, y);
+
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
     this.player = new Player({
@@ -30,7 +37,11 @@ export class WorldScene extends Phaser.Scene {
       direction: DIRECTION.DOWN,
     });
 
+    this.cameras.main.startFollow(this.player.sprite);
+
     this.controls = new Controls(this);
+
+    this.cameras.main.fadeIn(1000, 0, 0, 0);
   }
 
   update(time: DOMHighResTimeStamp) {
