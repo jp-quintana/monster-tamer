@@ -1,13 +1,14 @@
 import { DIRECTION } from '../../common/direction';
-import { TILE_SIZE } from '../../config';
 import { Coordinate } from '../../types';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../../utils/grid-utils';
 import { exhaustiveGuard } from '../../utils/guard';
 
+export const idleFrame = { DOWN: 7, UP: 1, NONE: 7, LEFT: 10, RIGHT: 4 };
+
 export interface CharacterConfig {
   scene: Phaser.Scene;
   assetKey: string;
-  assetFrame?: number;
+  origin?: Coordinate;
   position: Coordinate;
   direction: DIRECTION;
   spriteGridMovementFinishedCallback?: () => void;
@@ -18,6 +19,7 @@ export class Character {
   protected phaserGameObject: Phaser.GameObjects.Sprite;
   protected _direction: DIRECTION;
   protected _isMoving: boolean;
+  protected _origin: Coordinate;
   protected targetPosition: Coordinate;
   protected previousTargetPosition: Coordinate;
   protected spriteGridMovementFinishedCallback: (() => void) | undefined;
@@ -26,7 +28,7 @@ export class Character {
     const {
       scene,
       assetKey,
-      assetFrame = 0,
+      origin,
       position,
       direction,
       spriteGridMovementFinishedCallback,
@@ -36,9 +38,10 @@ export class Character {
     this._isMoving = false;
     this.targetPosition = { ...position };
     this.previousTargetPosition = { ...position };
+    this._origin = origin ? { ...origin } : { x: 0, y: 0 };
     this.phaserGameObject = this.scene.add
-      .sprite(position.x, position.y, assetKey, assetFrame)
-      .setOrigin(0);
+      .sprite(position.x, position.y, assetKey, this.getIdleFrame())
+      .setOrigin(this._origin.x, this._origin.y);
     this.spriteGridMovementFinishedCallback =
       spriteGridMovementFinishedCallback;
   }
@@ -57,10 +60,34 @@ export class Character {
     this.moveSprite(direction);
   }
 
+  protected getIdleFrame() {
+    return idleFrame[this.direction];
+  }
+
   update(time: DOMHighResTimeStamp) {
     if (this._isMoving) return;
 
+    const idleFrame =
+      this.phaserGameObject.anims.currentAnim?.frames[1].frame.name;
+
     this.phaserGameObject.anims.stop();
+
+    if (!idleFrame) {
+      return;
+    }
+
+    switch (this._direction) {
+      case DIRECTION.DOWN:
+      case DIRECTION.LEFT:
+      case DIRECTION.RIGHT:
+      case DIRECTION.UP:
+        this.phaserGameObject.setFrame(idleFrame);
+        break;
+      case DIRECTION.NONE:
+        break;
+      default:
+        exhaustiveGuard(this._direction);
+    }
   }
 
   protected moveSprite(direction: DIRECTION) {

@@ -7,7 +7,11 @@ interface PlayerConfig extends Omit<CharacterConfig, 'assetKey'> {}
 
 export class Player extends Character {
   constructor(config: PlayerConfig) {
-    super({ ...config, assetKey: CHARACTER_ASSET_KEYS.PLAYER, assetFrame: 7 });
+    super({
+      ...config,
+      assetKey: CHARACTER_ASSET_KEYS.PLAYER,
+      origin: { x: 0, y: 0.2 },
+    });
   }
 
   moveCharacter(direction: DIRECTION) {
