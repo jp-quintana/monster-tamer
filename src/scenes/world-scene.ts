@@ -40,6 +40,6 @@ export class WorldScene extends Phaser.Scene {
       this.player.moveCharacter(selectedDirection);
     }
 
-    this.player.update(time);
+    // this.player.update(time);
   }
 }
