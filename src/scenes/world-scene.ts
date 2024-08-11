@@ -1,6 +1,6 @@
 import { WORLD_ASSET_KEYS } from '../assets/asset-keys';
 import { DIRECTION } from '../common/direction';
-import { TILE_SIZE } from '../config';
+import { TILE_SIZE, TILED_COLLISION_LAYER_ALPHA } from '../config';
 import { Coordinate } from '../types';
 import { Controls } from '../utils/controls';
 import { Player } from '../world/characters/player';
@@ -29,15 +29,40 @@ export class WorldScene extends Phaser.Scene {
     const y = 22 * TILE_SIZE;
     this.cameras.main.centerOn(x, y);
 
+    const map = this.make.tilemap({ key: WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL });
+    const collisionTiles = map.addTilesetImage(
+      'collision',
+      WORLD_ASSET_KEYS.WORLD_COLLISION
+    );
+    if (!collisionTiles) {
+      console.log(
+        `Encountered error while creating collision tileset using data from tiled`
+      );
+      return;
+    }
+
+    const collisionLayer = map.createLayer('Collision', collisionTiles, 0, 0);
+    if (!collisionLayer) {
+      console.log(
+        `Encountered error while creating collision layer using data from tiled`
+      );
+      return;
+    }
+
+    collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
+
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
     this.player = new Player({
       scene: this,
       position: PLAYER_POSITION,
       direction: DIRECTION.DOWN,
+      collisionLayer,
     });
 
     this.cameras.main.startFollow(this.player.sprite);
+
+    this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_FOREGROUND, 0).setOrigin(0);
 
     this.controls = new Controls(this);
 

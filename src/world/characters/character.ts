@@ -11,6 +11,7 @@ export interface CharacterConfig {
   origin?: Coordinate;
   position: Coordinate;
   direction: DIRECTION;
+  collisionLayer?: Phaser.Tilemaps.TilemapLayer | undefined;
   spriteGridMovementFinishedCallback?: () => void;
 }
 
@@ -22,6 +23,7 @@ export class Character {
   protected _origin: Coordinate;
   protected targetPosition: Coordinate;
   protected previousTargetPosition: Coordinate;
+  protected _collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined;
   protected spriteGridMovementFinishedCallback: (() => void) | undefined;
 
   constructor(config: CharacterConfig) {
@@ -32,6 +34,7 @@ export class Character {
       position,
       direction,
       spriteGridMovementFinishedCallback,
+      collisionLayer,
     } = config;
     this.scene = scene;
     this._direction = direction;
@@ -39,6 +42,7 @@ export class Character {
     this.targetPosition = { ...position };
     this.previousTargetPosition = { ...position };
     this._origin = origin ? { ...origin } : { x: 0, y: 0 };
+    this._collisionLayer = collisionLayer;
     this.phaserGameObject = this.scene.add
       .sprite(position.x, position.y, assetKey, this.IdleFrame)
       .setOrigin(this._origin.x, this._origin.y);
@@ -108,8 +112,14 @@ export class Character {
       this._isMoving = false;
       return;
     }
-    // TODO: add in collision logic
-    return false;
+
+    const targetPosition = { ...this.targetPosition };
+    const updatedPosition = getTargetPositionFromGameObjectPositionAndDirection(
+      targetPosition,
+      this.direction
+    );
+
+    return this.doesThisPositionCollideWithCollisionLayer(updatedPosition);
   }
 
   private handleSpriteMovement() {
@@ -147,5 +157,15 @@ export class Character {
           this.spriteGridMovementFinishedCallback();
       },
     });
+  }
+
+  private doesThisPositionCollideWithCollisionLayer(position: Coordinate) {
+    if (!this._collisionLayer) return false;
+
+    const { x, y } = position;
+
+    const tile = this._collisionLayer.getTileAtWorldXY(x, y, true);
+
+    return tile.index !== -1;
   }
 }
