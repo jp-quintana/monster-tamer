@@ -1,6 +1,10 @@
 import { WORLD_ASSET_KEYS } from '../assets/asset-keys';
 import { DIRECTION } from '../common/direction';
-import { TILE_SIZE, TILED_COLLISION_LAYER_ALPHA } from '../config';
+import {
+  TILE_SIZE,
+  TILED_COLLISION_LAYER_ALPHA,
+  TILED_ENCOUNTER_LAYER_ALPHA,
+} from '../config';
 import { Coordinate } from '../types';
 import { Controls } from '../utils/controls';
 import { Player } from '../world/characters/player';
@@ -50,6 +54,16 @@ export class WorldScene extends Phaser.Scene {
     }
 
     collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
+
+    const encounterLayer = map.createLayer('Encounter', collisionTiles, 0, 0);
+    if (!encounterLayer) {
+      console.log(
+        `Encountered error while creating collision layer using data from tiled`
+      );
+      return;
+    }
+
+    encounterLayer.setAlpha(TILED_ENCOUNTER_LAYER_ALPHA).setDepth(2);
 
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
