@@ -7,13 +7,9 @@ import {
 } from '../config';
 import { Coordinate } from '../types';
 import { Controls } from '../utils/controls';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { Player } from '../world/characters/player';
 import { SCENE_KEYS } from './scene-keys';
-
-const PLAYER_POSITION: Coordinate = Object.freeze({
-  x: 6 * TILE_SIZE,
-  y: 21 * TILE_SIZE,
-});
 
 export class WorldScene extends Phaser.Scene {
   private player: Player;
@@ -86,8 +82,10 @@ export class WorldScene extends Phaser.Scene {
 
     this.player = new Player({
       scene: this,
-      position: PLAYER_POSITION,
-      direction: DIRECTION.DOWN,
+      position: dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION),
+      direction: dataManager.store.get(
+        DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION
+      ),
       collisionLayer,
       spriteGridMovementFinishedCallback: () => {
         this.handlePlayerMovementUpdate();
@@ -119,9 +117,19 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private handlePlayerMovementUpdate() {
-    if (!this.encounterLayer) return;
-
     const { x, y } = this.player.sprite;
+
+    dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION, {
+      x,
+      y,
+    });
+
+    dataManager.store.set(
+      DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
+      this.player.direction
+    );
+
+    if (!this.encounterLayer) return;
 
     const isInEncounterZone =
       this.encounterLayer.getTileAtWorldXY(x, y, true).index !== -1;
