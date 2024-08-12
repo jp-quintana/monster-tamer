@@ -1,4 +1,4 @@
-import { MONSTER_ASSET_KEYS } from '../assets/asset-keys.ts';
+import { MONSTER_ASSET_KEYS, WORLD_ASSET_KEYS } from '../assets/asset-keys.ts';
 import {
   ATTACK_TARGET,
   AttackManager,
@@ -60,7 +60,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [1],
-        baseAttack: 15,
+        baseAttack: 5,
       },
       skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
     });
@@ -75,7 +75,7 @@ export class BattleScene extends Phaser.Scene {
         currentHp: 25,
         maxHp: 25,
         attackIds: [2],
-        baseAttack: 5,
+        baseAttack: 10,
       },
       skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
     });
@@ -255,7 +255,7 @@ export class BattleScene extends Phaser.Scene {
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
-        this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+        this.scene.start(SCENE_KEYS.WORLD_SCENE);
       }
     );
   }

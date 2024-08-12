@@ -18,11 +18,17 @@ const PLAYER_POSITION: Coordinate = Object.freeze({
 export class WorldScene extends Phaser.Scene {
   private player: Player;
   private controls: Controls;
+  private encounterLayer: Phaser.Tilemaps.TilemapLayer | null;
+  private wildMonsterEncountered: boolean;
 
   constructor() {
     super({
       key: SCENE_KEYS.WORLD_SCENE,
     });
+  }
+
+  init() {
+    this.wildMonsterEncountered = false;
   }
 
   create() {
@@ -55,15 +61,26 @@ export class WorldScene extends Phaser.Scene {
 
     collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
 
-    const encounterLayer = map.createLayer('Encounter', collisionTiles, 0, 0);
-    if (!encounterLayer) {
+    const encounterTiles = map.addTilesetImage(
+      'encounter',
+      WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE
+    );
+    if (!encounterTiles) {
+      console.log(
+        `Encountered error while creating collision tileset using data from tiled`
+      );
+      return;
+    }
+
+    this.encounterLayer = map.createLayer('Encounter', encounterTiles, 0, 0);
+    if (!this.encounterLayer) {
       console.log(
         `Encountered error while creating collision layer using data from tiled`
       );
       return;
     }
 
-    encounterLayer.setAlpha(TILED_ENCOUNTER_LAYER_ALPHA).setDepth(2);
+    this.encounterLayer.setAlpha(TILED_ENCOUNTER_LAYER_ALPHA).setDepth(2);
 
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
@@ -72,6 +89,9 @@ export class WorldScene extends Phaser.Scene {
       position: PLAYER_POSITION,
       direction: DIRECTION.DOWN,
       collisionLayer,
+      spriteGridMovementFinishedCallback: () => {
+        this.handlePlayerMovementUpdate();
+      },
     });
 
     this.cameras.main.startFollow(this.player.sprite);
@@ -84,6 +104,11 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update(time: DOMHighResTimeStamp) {
+    if (this.wildMonsterEncountered) {
+      this.player.update(time);
+      return;
+    }
+
     const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
     if (selectedDirection !== DIRECTION.NONE) {
@@ -91,5 +116,31 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.player.update(time);
+  }
+
+  private handlePlayerMovementUpdate() {
+    if (!this.encounterLayer) return;
+
+    const { x, y } = this.player.sprite;
+
+    const isInEncounterZone =
+      this.encounterLayer.getTileAtWorldXY(x, y, true).index !== -1;
+
+    if (!isInEncounterZone) return;
+
+    console.log('Player is in a encounter zone');
+
+    this.wildMonsterEncountered = Math.random() < 0.9;
+
+    if (this.wildMonsterEncountered) {
+      console.log('Player encountered a wild monster');
+      this.cameras.main.fadeOut(1000);
+      this.cameras.main.once(
+        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+        () => {
+          this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+        }
+      );
+    }
   }
 }
