@@ -10,6 +10,7 @@ import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
 import { Player } from '../world/characters/player';
+import { DialogUi } from '../world/dialog-ui';
 import { SCENE_KEYS } from './scene-keys';
 
 interface TiledObjectProperty {
@@ -24,6 +25,7 @@ export class WorldScene extends Phaser.Scene {
   private signLayer: Phaser.Tilemaps.ObjectLayer | null;
   private encounterLayer: Phaser.Tilemaps.TilemapLayer | null;
   private wildMonsterEncountered: boolean;
+  private dialogUi: DialogUi;
 
   constructor() {
     super({
@@ -127,6 +129,8 @@ export class WorldScene extends Phaser.Scene {
 
     this.controls = new Controls(this);
 
+    this.dialogUi = new DialogUi(this, 1280);
+
     this.cameras.main.fadeIn(1000, 0, 0, 0);
   }
 
@@ -150,7 +154,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private handlePlayerInteraction() {
-    console.log('start of interaction');
+    if (this.dialogUi.isVisible) {
+      this.dialogUi.hideDialogModal();
+      return;
+    }
+
+    this.dialogUi.showDialogModal();
 
     const { x, y } = this.player.sprite;
     const targetPosition = getTargetPositionFromGameObjectPositionAndDirection(
