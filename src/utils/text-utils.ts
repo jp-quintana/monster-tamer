@@ -17,3 +17,7 @@ export const animateText = (
     delay: config?.delay || 25,
   });
 };
+
+export const CANNOT_READ_SIGN_TEXT =
+  'You cannot read the sign from this direction';
+export const SAMPLE_TEXT = 'You cannot read the sign from this direction';

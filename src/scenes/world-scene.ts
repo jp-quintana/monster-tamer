@@ -7,12 +7,21 @@ import {
 } from '../config';
 import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
+import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
+import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
 import { Player } from '../world/characters/player';
 import { SCENE_KEYS } from './scene-keys';
+
+interface TiledObjectProperty {
+  name: string;
+  type: string;
+  value: any;
+}
 
 export class WorldScene extends Phaser.Scene {
   private player: Player;
   private controls: Controls;
+  private signLayer: Phaser.Tilemaps.ObjectLayer | null;
   private encounterLayer: Phaser.Tilemaps.TilemapLayer | null;
   private wildMonsterEncountered: boolean;
 
@@ -56,6 +65,27 @@ export class WorldScene extends Phaser.Scene {
 
     collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
 
+    // const interactiveTiles = map.addTilesetImage(
+    //   'collision',
+    //   WORLD_ASSET_KEYS.WORLD_COLLISION
+    // );
+    // if (!interactiveTiles) {
+    //   console.log(
+    //     `Encountered error while creating collision tileset using data from tiled`
+    //   );
+    //   return;
+    // }
+
+    // create interactive layer
+    this.signLayer = map.getObjectLayer('Sign');
+    if (!this.signLayer) {
+      console.log(
+        `Encountered error while creating sign layer using data from tiled`
+      );
+      return;
+    }
+
+    // create encounter layer
     const encounterTiles = map.addTilesetImage(
       'encounter',
       WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE
@@ -112,7 +142,46 @@ export class WorldScene extends Phaser.Scene {
       this.player.moveCharacter(selectedDirection);
     }
 
+    if (this.controls.wasSpaceKeyPressed() && !this.player.isMoving) {
+      this.handlePlayerInteraction();
+    }
+
     this.player.update(time);
+  }
+
+  private handlePlayerInteraction() {
+    console.log('start of interaction');
+
+    const { x, y } = this.player.sprite;
+    const targetPosition = getTargetPositionFromGameObjectPositionAndDirection(
+      { x, y },
+      this.player.direction
+    );
+
+    const nearbySign = this.signLayer?.objects.find((object) => {
+      if (!object.x || !object.y) return;
+
+      return (
+        object.x === targetPosition.x &&
+        object.y - TILE_SIZE === targetPosition.y
+      );
+    });
+
+    if (nearbySign) {
+      const { properties: props } = nearbySign as {
+        properties: TiledObjectProperty[];
+      };
+
+      const usePlaceHolderText = this.player.direction !== DIRECTION.UP;
+
+      let textToShow = CANNOT_READ_SIGN_TEXT;
+      if (!usePlaceHolderText) {
+        textToShow =
+          props.find((prop) => prop.name === 'message')?.value || SAMPLE_TEXT;
+      }
+
+      console.log(textToShow);
+    }
   }
 
   private handlePlayerMovementUpdate() {
