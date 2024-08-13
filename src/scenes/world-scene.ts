@@ -67,17 +67,6 @@ export class WorldScene extends Phaser.Scene {
 
     collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
 
-    // const interactiveTiles = map.addTilesetImage(
-    //   'collision',
-    //   WORLD_ASSET_KEYS.WORLD_COLLISION
-    // );
-    // if (!interactiveTiles) {
-    //   console.log(
-    //     `Encountered error while creating collision tileset using data from tiled`
-    //   );
-    //   return;
-    // }
-
     // create interactive layer
     this.signLayer = map.getObjectLayer('Sign');
     if (!this.signLayer) {
@@ -142,7 +131,7 @@ export class WorldScene extends Phaser.Scene {
 
     const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
-    if (selectedDirection !== DIRECTION.NONE) {
+    if (selectedDirection !== DIRECTION.NONE && !this.dialogUi.isVisible) {
       this.player.moveCharacter(selectedDirection);
     }
 
@@ -154,12 +143,17 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private handlePlayerInteraction() {
+    if (this.dialogUi.isAnimationPlaying) return;
+
+    if (this.dialogUi.moreMessagesToShow) {
+      this.dialogUi.showNextMessage();
+      return;
+    }
+
     if (this.dialogUi.isVisible) {
       this.dialogUi.hideDialogModal();
       return;
     }
-
-    this.dialogUi.showDialogModal();
 
     const { x, y } = this.player.sprite;
     const targetPosition = getTargetPositionFromGameObjectPositionAndDirection(
@@ -189,7 +183,7 @@ export class WorldScene extends Phaser.Scene {
           props.find((prop) => prop.name === 'message')?.value || SAMPLE_TEXT;
       }
 
-      console.log(textToShow);
+      this.dialogUi.showDialogModal([textToShow]);
     }
   }
 
