@@ -5,7 +5,6 @@ import {
   TILED_COLLISION_LAYER_ALPHA,
   TILED_ENCOUNTER_LAYER_ALPHA,
 } from '../config';
-import { Coordinate } from '../types';
 import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { Player } from '../world/characters/player';
