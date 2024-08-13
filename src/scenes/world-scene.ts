@@ -9,6 +9,7 @@ import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
+import { NPC } from '../world/characters/npc';
 import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
 import { SCENE_KEYS } from './scene-keys';
@@ -19,6 +20,18 @@ interface TiledObjectProperty {
   value: any;
 }
 
+const enum CUSTOM_TILED_TYPES {
+  NPC = 'npc',
+  NPC_PATH = 'npc_path',
+}
+
+const enum TILED_NPC_PROPERTY {
+  IS_SPAWN_POINT = 'is_spawn_point',
+  MOVEMENT_PATTERN = 'movement_pattern',
+  MESSAGES = 'messages',
+  FRAME = 'frame',
+}
+
 export class WorldScene extends Phaser.Scene {
   private player: Player;
   private controls: Controls;
@@ -26,6 +39,7 @@ export class WorldScene extends Phaser.Scene {
   private encounterLayer: Phaser.Tilemaps.TilemapLayer | null;
   private wildMonsterEncountered: boolean;
   private dialogUi: DialogUi;
+  private npcs: NPC[];
 
   constructor() {
     super({
@@ -100,6 +114,10 @@ export class WorldScene extends Phaser.Scene {
 
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
+    // create npcs
+    this.createNPCs(map);
+
+    // create player
     this.player = new Player({
       scene: this,
       position: dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION),
@@ -140,6 +158,10 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.player.update(time);
+
+    this.npcs.forEach((npc) => {
+      npc.update(time);
+    });
   }
 
   private handlePlayerInteraction() {
@@ -221,5 +243,52 @@ export class WorldScene extends Phaser.Scene {
         }
       );
     }
+  }
+
+  private createNPCs(map: Phaser.Tilemaps.Tilemap) {
+    this.npcs = [];
+
+    const npcLayers = map
+      .getObjectLayerNames()
+      .filter((layerName) => layerName.includes('NPC'));
+
+    npcLayers.forEach((layerName) => {
+      const layer = map.getObjectLayer(layerName);
+
+      const npcObject = layer?.objects.find(
+        (obj) => obj.type === CUSTOM_TILED_TYPES.NPC
+      );
+
+      if (
+        !npcObject ||
+        npcObject.x === undefined ||
+        npcObject.y === undefined
+      ) {
+        return;
+      }
+
+      const {
+        properties: props,
+        x,
+        y,
+      } = npcObject as {
+        properties: TiledObjectProperty[];
+        x: number;
+        y: number;
+      };
+
+      const npc = new NPC({
+        scene: this,
+        position: { x, y: y - TILE_SIZE },
+        direction: DIRECTION.DOWN,
+        frame: parseInt(
+          props.find((property) => property.name === TILED_NPC_PROPERTY.FRAME)
+            ?.value || '0',
+          10
+        ),
+      });
+
+      this.npcs.push(npc);
+    });
   }
 }

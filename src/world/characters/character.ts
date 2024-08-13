@@ -20,7 +20,7 @@ export interface CharacterConfig {
   position: Coordinate;
   direction: DIRECTION;
   collisionLayer?: Phaser.Tilemaps.TilemapLayer | undefined;
-  idleFrameConfig?: idleFrameConfig;
+  idleFrameConfig: idleFrameConfig;
   spriteGridMovementFinishedCallback?: () => void;
 }
 
@@ -34,7 +34,7 @@ export class Character {
   protected previousTargetPosition: Coordinate;
   protected _collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined;
   protected spriteGridMovementFinishedCallback: (() => void) | undefined;
-  protected idleFrameConfig: idleFrameConfig | undefined;
+  protected idleFrameConfig: idleFrameConfig;
 
   constructor(config: CharacterConfig) {
     const {
@@ -75,7 +75,7 @@ export class Character {
   }
 
   protected get idleFrame() {
-    return this.idleFrameConfig?.[this.direction] || undefined;
+    return this.idleFrameConfig[this.direction];
   }
 
   moveCharacter(direction: DIRECTION) {
