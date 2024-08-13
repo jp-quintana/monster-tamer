@@ -5,6 +5,14 @@ import { exhaustiveGuard } from '../../utils/guard';
 
 export const idleFrame = { DOWN: 7, UP: 1, NONE: 7, LEFT: 10, RIGHT: 4 };
 
+export interface idleFrameConfig {
+  DOWN: number;
+  UP: number;
+  NONE: number;
+  LEFT: number;
+  RIGHT: number;
+}
+
 export interface CharacterConfig {
   scene: Phaser.Scene;
   assetKey: string;
@@ -12,6 +20,7 @@ export interface CharacterConfig {
   position: Coordinate;
   direction: DIRECTION;
   collisionLayer?: Phaser.Tilemaps.TilemapLayer | undefined;
+  idleFrameConfig?: idleFrameConfig;
   spriteGridMovementFinishedCallback?: () => void;
 }
 
@@ -25,6 +34,7 @@ export class Character {
   protected previousTargetPosition: Coordinate;
   protected _collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined;
   protected spriteGridMovementFinishedCallback: (() => void) | undefined;
+  protected idleFrameConfig: idleFrameConfig | undefined;
 
   constructor(config: CharacterConfig) {
     const {
@@ -35,16 +45,18 @@ export class Character {
       direction,
       spriteGridMovementFinishedCallback,
       collisionLayer,
+      idleFrameConfig,
     } = config;
     this.scene = scene;
     this._direction = direction;
     this._isMoving = false;
     this.targetPosition = { ...position };
     this.previousTargetPosition = { ...position };
+    this.idleFrameConfig = idleFrameConfig;
     this._origin = origin ? { ...origin } : { x: 0, y: 0 };
     this._collisionLayer = collisionLayer;
     this.phaserGameObject = this.scene.add
-      .sprite(position.x, position.y, assetKey, this.IdleFrame)
+      .sprite(position.x, position.y, assetKey, this.idleFrame)
       .setOrigin(this._origin.x, this._origin.y);
     this.spriteGridMovementFinishedCallback =
       spriteGridMovementFinishedCallback;
@@ -62,9 +74,8 @@ export class Character {
     return this._direction;
   }
 
-  // ep 41
-  protected get IdleFrame() {
-    return idleFrame[this.direction];
+  protected get idleFrame() {
+    return this.idleFrameConfig?.[this.direction] || undefined;
   }
 
   moveCharacter(direction: DIRECTION) {
