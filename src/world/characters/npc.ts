@@ -3,7 +3,8 @@ import { DIRECTION } from '../../common/direction';
 import { exhaustiveGuard } from '../../utils/guard';
 import { Character, CharacterConfig } from './character';
 
-interface NPCConfig extends Omit<CharacterConfig, 'assetKey'> {
+interface NPCConfig
+  extends Omit<CharacterConfig, 'assetKey' | 'idleFrameConfig'> {
   frame: number;
 }
 

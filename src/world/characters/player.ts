@@ -3,7 +3,8 @@ import { DIRECTION } from '../../common/direction';
 import { exhaustiveGuard } from '../../utils/guard';
 import { Character, CharacterConfig } from './character';
 
-interface PlayerConfig extends Omit<CharacterConfig, 'assetKey'> {}
+interface PlayerConfig
+  extends Omit<CharacterConfig, 'assetKey' | 'idleFrameConfig'> {}
 
 export class Player extends Character {
   constructor(config: PlayerConfig) {
