@@ -3,12 +3,17 @@ import { DIRECTION } from '../../common/direction';
 import { exhaustiveGuard } from '../../utils/guard';
 import { Character, CharacterConfig } from './character';
 
-interface NPCConfig
-  extends Omit<CharacterConfig, 'assetKey' | 'idleFrameConfig'> {
+interface NPCConfigProps {
   frame: number;
+  messages: string[];
 }
+interface NPCConfig
+  extends Omit<CharacterConfig, 'assetKey' | 'idleFrameConfig'>,
+    NPCConfigProps {}
 
 export class NPC extends Character {
+  #messages: string[];
+  private talkingToPlayer: boolean;
   constructor(config: NPCConfig) {
     super({
       ...config,
@@ -23,19 +28,38 @@ export class NPC extends Character {
       },
     });
 
+    this.#messages = config.messages;
+    this.talkingToPlayer = false;
     this.phaserGameObject.setScale(4);
+  }
+
+  get messages() {
+    return [...this.#messages];
+  }
+
+  get isTalkingToPlayer() {
+    return this.talkingToPlayer;
+  }
+
+  set isTalkingToPlayer(val: boolean) {
+    this.talkingToPlayer = val;
   }
 
   facePlayer(playerDirection: DIRECTION) {
     switch (playerDirection) {
       case DIRECTION.UP:
-        this.phaserGameObject.setFrame(this.idleFrameConfig.DOWN);
+        this.phaserGameObject
+          .setFrame(this.idleFrameConfig.DOWN)
+          .setFlipX(false);
         break;
       case DIRECTION.DOWN:
-        this.phaserGameObject.setFrame(this.idleFrameConfig.UP);
+        this.phaserGameObject.setFrame(this.idleFrameConfig.UP).setFlipX(false);
         break;
       case DIRECTION.LEFT:
-        this.phaserGameObject.setFrame(this.idleFrameConfig.RIGHT);
+        this.phaserGameObject
+          .setFrame(this.idleFrameConfig.RIGHT)
+          .setFlipX(false);
+
         break;
       case DIRECTION.RIGHT:
         this.phaserGameObject
