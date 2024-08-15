@@ -5,7 +5,7 @@ import { exhaustiveGuard } from '../../utils/guard';
 
 export const idleFrame = { DOWN: 7, UP: 1, NONE: 7, LEFT: 10, RIGHT: 4 };
 
-export interface idleFrameConfig {
+export interface IdleFrameConfig {
   DOWN: number;
   UP: number;
   NONE: number;
@@ -20,7 +20,7 @@ export interface CharacterConfig {
   position: Coordinate;
   direction: DIRECTION;
   collisionLayer?: Phaser.Tilemaps.TilemapLayer | undefined;
-  idleFrameConfig: idleFrameConfig;
+  idleFrameConfig: IdleFrameConfig;
   otherCharactersToCheckForCollisionsWith?: Character[];
   spriteGridMovementFinishedCallback?: () => void;
 }
@@ -35,7 +35,7 @@ export class Character {
   protected previousTargetPosition: Coordinate;
   protected _collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined;
   protected spriteGridMovementFinishedCallback: (() => void) | undefined;
-  protected idleFrameConfig: idleFrameConfig;
+  protected idleFrameConfig: IdleFrameConfig;
   protected otherCharactersToCheckForCollisionsWith: Character[];
 
   constructor(config: CharacterConfig) {

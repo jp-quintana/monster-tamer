@@ -9,7 +9,7 @@ import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
-import { NPC } from '../world/characters/npc';
+import { NPC, NPC_MOVEMENT_PATTERN, NPCPath } from '../world/characters/npc';
 import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
 import { SCENE_KEYS } from './scene-keys';
@@ -281,6 +281,7 @@ export class WorldScene extends Phaser.Scene {
     npcLayers.forEach((layerName) => {
       const layer = map.getObjectLayer(layerName);
 
+      // get npc objects
       const npcObject = layer?.objects.find(
         (obj) => obj.type === CUSTOM_TILED_TYPES.NPC
       );
@@ -303,15 +304,40 @@ export class WorldScene extends Phaser.Scene {
         y: number;
       };
 
+      // get npc path objects
+      const pathObjects = layer?.objects.filter(
+        (obj) => obj.type === CUSTOM_TILED_TYPES.NPC_PATH
+      );
+
+      const npcPath: NPCPath = {
+        0: { x, y: y - TILE_SIZE },
+      };
+
+      if (pathObjects) {
+        pathObjects.forEach((obj) => {
+          if (obj.x === undefined || obj.y === undefined) {
+            return;
+          }
+          npcPath[parseInt(obj.name, 10)] = { x: obj.x, y: obj.y - TILE_SIZE };
+        });
+      }
+
+      // get npc frame
       const npcFrame =
         props.find((property) => property.name === TILED_NPC_PROPERTY.FRAME)
           ?.value || '0';
 
+      // get npc messages
       const npcMessagesString =
         props.find((property) => property.name === TILED_NPC_PROPERTY.MESSAGES)
           ?.value || '';
 
       const npcMessages = npcMessagesString.split('::');
+
+      const npcMovement: NPC_MOVEMENT_PATTERN =
+        props.find(
+          (property) => property.name === TILED_NPC_PROPERTY.MOVEMENT_PATTERN
+        )?.value || 'IDLE';
 
       const npc = new NPC({
         scene: this,
@@ -319,6 +345,8 @@ export class WorldScene extends Phaser.Scene {
         direction: DIRECTION.DOWN,
         frame: parseInt(npcFrame, 10),
         messages: npcMessages,
+        npcPath,
+        movementPattern: npcMovement,
       });
 
       this.npcs.push(npc);
