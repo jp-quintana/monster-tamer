@@ -27,6 +27,7 @@ export class NPC extends Character {
   private npcPath: NPCPath;
   private currentPathIndex: number;
   private movementPattern: NPC_MOVEMENT_PATTERN;
+  private lastMovementTime: DOMHighResTimeStamp;
 
   constructor(config: NPCConfig) {
     super({
@@ -48,6 +49,7 @@ export class NPC extends Character {
     this.npcPath = config.npcPath;
     this.currentPathIndex = 0;
     this.movementPattern = config.movementPattern;
+    this.lastMovementTime = Phaser.Math.Between(3500, 5000);
   }
 
   get messages() {
@@ -99,26 +101,69 @@ export class NPC extends Character {
 
     if (this.movementPattern === NPC_MOVEMENT_PATTERN.IDLE) return;
 
-    let characterDirection = DIRECTION.NONE;
-    let nextPosition = this.npcPath[this.currentPathIndex + 1];
+    if (this.lastMovementTime < time) {
+      let characterDirection = DIRECTION.NONE;
+      let nextPosition = this.npcPath[this.currentPathIndex + 1];
 
-    if (!nextPosition) {
-      nextPosition = this.npcPath[0];
-      this.currentPathIndex = 0;
-    } else {
-      this.currentPathIndex = this.currentPathIndex + 1;
+      const prevPosition = this.npcPath[this.currentPathIndex];
+      if (
+        prevPosition.x !== this.phaserGameObject.x ||
+        prevPosition.y !== this.phaserGameObject.y
+      ) {
+        nextPosition = this.npcPath[this.currentPathIndex];
+      } else {
+        if (!nextPosition) {
+          nextPosition = this.npcPath[0];
+          this.currentPathIndex = 0;
+        } else {
+          this.currentPathIndex = this.currentPathIndex + 1;
+        }
+      }
+
+      if (nextPosition.x > this.phaserGameObject.x) {
+        characterDirection = DIRECTION.RIGHT;
+      } else if (nextPosition.x < this.phaserGameObject.x) {
+        characterDirection = DIRECTION.LEFT;
+      } else if (nextPosition.y < this.phaserGameObject.y) {
+        characterDirection = DIRECTION.UP;
+      } else {
+        characterDirection = DIRECTION.DOWN;
+      }
+
+      this.moveCharacter(characterDirection);
+      this.lastMovementTime = time + Phaser.Math.Between(2000, 5000);
     }
+  }
 
-    if (nextPosition.x > this.phaserGameObject.x) {
-      characterDirection = DIRECTION.RIGHT;
-    } else if (nextPosition.x < this.phaserGameObject.x) {
-      characterDirection = DIRECTION.LEFT;
-    } else if (nextPosition.y < this.phaserGameObject.y) {
-      characterDirection = DIRECTION.UP;
-    } else {
-      characterDirection = DIRECTION.DOWN;
+  moveCharacter(direction: DIRECTION) {
+    super.moveCharacter(direction);
+    switch (this._direction) {
+      case DIRECTION.DOWN:
+      case DIRECTION.RIGHT:
+      case DIRECTION.UP:
+        if (
+          !this.phaserGameObject.anims.isPlaying ||
+          this.phaserGameObject.anims.currentAnim?.key !==
+            `NPC_1_${this._direction}`
+        ) {
+          this.phaserGameObject.play(`NPC_1_${this._direction}`);
+          this.phaserGameObject.setFlipX(false);
+        }
+        break;
+      case DIRECTION.LEFT:
+        if (
+          !this.phaserGameObject.anims.isPlaying ||
+          this.phaserGameObject.anims.currentAnim?.key !==
+            `NPC_1_${DIRECTION.RIGHT}`
+        ) {
+          this.phaserGameObject.play(`NPC_1_${DIRECTION.RIGHT}`);
+          this.phaserGameObject.setFlipX(true);
+        }
+        break;
+      case DIRECTION.NONE:
+        break;
+      default:
+        exhaustiveGuard(this._direction);
     }
-
-    this.moveCharacter(characterDirection);
   }
 }
