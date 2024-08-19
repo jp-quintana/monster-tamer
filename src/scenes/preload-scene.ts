@@ -6,6 +6,7 @@ import {
   DATA_ASSET_KEYS,
   HEALTH_BAR_ASSET_KEYS,
   MONSTER_ASSET_KEYS,
+  TITLE_ASSET_KEYS,
   UI_ASSET_KEYS,
   WORLD_ASSET_KEYS,
 } from '../assets/asset-keys.ts';
@@ -86,6 +87,10 @@ export class PreloadScene extends Phaser.Scene {
       UI_ASSET_KEYS.CURSOR,
       monsterTamerAssetPath + '/ui/cursor.png'
     );
+    this.load.image(
+      UI_ASSET_KEYS.MENU_BACKGROUND,
+      kenneysTamerAssetPath + '/ui-space-expansion/glassPanel.png'
+    );
 
     // load json data
     this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
@@ -162,11 +167,25 @@ export class PreloadScene extends Phaser.Scene {
         frameHeight: 16,
       }
     );
+
+    // ui components
+    this.load.image(
+      TITLE_ASSET_KEYS.BACKGROUND,
+      `${monsterTamerAssetPath}/ui/title/background.png`
+    );
+    this.load.image(
+      TITLE_ASSET_KEYS.PANEL,
+      `${monsterTamerAssetPath}/ui/title/title_background.png`
+    );
+    this.load.image(
+      TITLE_ASSET_KEYS.TITLE,
+      `${monsterTamerAssetPath}/ui/title/title_text.png`
+    );
   }
 
   create() {
     this.createAnimations();
-    this.scene.start(SCENE_KEYS.WORLD_SCENE);
+    this.scene.start(SCENE_KEYS.TITLE_SCENE);
   }
 
   private createAnimations() {
