@@ -3,6 +3,7 @@ import { SCENE_KEYS } from './scenes/scene-keys';
 import { PreloadScene } from './scenes/preload-scene';
 import { BattleScene } from './scenes/battle-scene';
 import { WorldScene } from './scenes/world-scene';
+import { TitleScene } from './scenes/title-scene';
 
 const config: Types.Core.GameConfig = {
   type: Phaser.CANVAS,
@@ -23,4 +24,5 @@ const game = new Game(config);
 game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
 game.scene.add(SCENE_KEYS.WORLD_SCENE, WorldScene);
 game.scene.add(SCENE_KEYS.BATTLE_SCENE, BattleScene);
+game.scene.add(SCENE_KEYS.TITLE_SCENE, TitleScene);
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
