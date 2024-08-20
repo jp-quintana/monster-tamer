@@ -24,7 +24,7 @@ export class Controls {
   }
 
   set lockInput(val: boolean) {
-    this.lockInput = val;
+    this.lockPlayerInput = val;
   }
 
   wasSpaceKeyPressed() {
