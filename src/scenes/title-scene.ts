@@ -1,5 +1,8 @@
 import { TITLE_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
+import { DIRECTION } from '../common/direction';
+import { Controls } from '../utils/controls';
+import { exhaustiveGuard } from '../utils/guard';
 import { SCENE_KEYS } from './scene-keys';
 
 const MENU_BACKGROUND_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle =
@@ -11,9 +14,22 @@ const MENU_BACKGROUND_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle =
 
 const PLAYER_INPUT_CURSOR_POSITION = Object.freeze({
   x: 150,
+  // y: 41,
 });
+
+const enum MAIN_MENU_OPTIONS {
+  NEW_GAME = 'NEW_GAME',
+  CONTINUE = 'CONTINUE',
+  OPTIONS = 'OPTIONS',
+}
 export class TitleScene extends Phaser.Scene {
   private mainMenuCursorPhaserImageGameObject: Phaser.GameObjects.Image;
+  private controls: Controls;
+  private selectedMenuOption: MAIN_MENU_OPTIONS;
+  private newGameText: Phaser.GameObjects.Text;
+  private continueText: Phaser.GameObjects.Text;
+  private optionsText: Phaser.GameObjects.Text;
+  private isContinueButtonEnabled: boolean;
 
   constructor() {
     super({
@@ -22,6 +38,8 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    this.selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
+    this.isContinueButtonEnabled = false;
     // create title scene background
     this.add
       .image(0, 0, TITLE_ASSET_KEYS.BACKGROUND)
@@ -47,28 +65,37 @@ export class TitleScene extends Phaser.Scene {
 
     const menuBgContainer = this.add.container(0, 0, [menuBg]);
 
-    const newGameText = this.add
+    this.newGameText = this.add
       .text(menuBgWidth / 2, 40, 'New Game', MENU_BACKGROUND_TEXT_STYLE)
       .setOrigin(0.5);
 
-    const continueText = this.add
+    this.continueText = this.add
       .text(menuBgWidth / 2, 90, 'Continue', MENU_BACKGROUND_TEXT_STYLE)
       .setOrigin(0.5);
 
-    const optionsText = this.add
+    if (!this.isContinueButtonEnabled) {
+      this.continueText.setAlpha(0.5);
+    }
+    this.optionsText = this.add
       .text(menuBgWidth / 2, 140, 'Options', MENU_BACKGROUND_TEXT_STYLE)
       .setOrigin(0.5);
     const menuContainer = this.add.container(0, 0, [
       menuBgContainer,
-      newGameText,
-      continueText,
-      optionsText,
+      this.newGameText,
+      this.continueText,
+      this.optionsText,
     ]);
     menuContainer.setPosition(this.scale.width / 2 - menuBgWidth / 2, 300);
 
     // create cursor
+
     this.mainMenuCursorPhaserImageGameObject = this.add
-      .image(PLAYER_INPUT_CURSOR_POSITION.x, 41, UI_ASSET_KEYS.CURSOR)
+      .image(
+        PLAYER_INPUT_CURSOR_POSITION.x,
+        // PLAYER_INPUT_CURSOR_POSITION.y,
+        this.newGameText.y,
+        UI_ASSET_KEYS.CURSOR
+      )
       .setOrigin(0.5)
       .setScale(2.5);
 
@@ -85,6 +112,69 @@ export class TitleScene extends Phaser.Scene {
       },
       targets: this.mainMenuCursorPhaserImageGameObject,
     });
+
     // add in fade effects
+
+    this.controls = new Controls(this);
+  }
+
+  update() {
+    const selectedDirection = this.controls.getDirectionKeyJustPressed();
+    if (selectedDirection !== DIRECTION.NONE) {
+      this.moveMenuSelectCursor(selectedDirection);
+    }
+  }
+
+  private moveMenuSelectCursor(direction: DIRECTION) {
+    this.updateSelectedMenuOptionFromInput(direction);
+    switch (this.selectedMenuOption) {
+      case MAIN_MENU_OPTIONS.NEW_GAME:
+        this.mainMenuCursorPhaserImageGameObject.setY(this.newGameText.y);
+        break;
+      case MAIN_MENU_OPTIONS.CONTINUE:
+        this.mainMenuCursorPhaserImageGameObject.setY(this.continueText.y);
+        break;
+      case MAIN_MENU_OPTIONS.OPTIONS:
+        this.mainMenuCursorPhaserImageGameObject.setY(this.optionsText.y);
+
+        break;
+      default:
+        exhaustiveGuard(this.selectedMenuOption);
+    }
+  }
+
+  private updateSelectedMenuOptionFromInput(direction: DIRECTION) {
+    switch (direction) {
+      case DIRECTION.UP:
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) return;
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.CONTINUE) {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
+          return;
+        }
+        if (this.isContinueButtonEnabled) {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.CONTINUE;
+        } else {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
+        }
+        return;
+      case DIRECTION.DOWN:
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS) return;
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.CONTINUE) {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.OPTIONS;
+          return;
+        }
+        if (this.isContinueButtonEnabled) {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.CONTINUE;
+        } else {
+          this.selectedMenuOption = MAIN_MENU_OPTIONS.OPTIONS;
+        }
+        return;
+      case DIRECTION.LEFT:
+      case DIRECTION.RIGHT:
+      case DIRECTION.NONE:
+        break;
+      default:
+        exhaustiveGuard(direction);
+    }
   }
 }
