@@ -6,12 +6,11 @@ import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { SCENE_KEYS } from './scene-keys';
 
-const MENU_BACKGROUND_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle =
-  Object.freeze({
-    fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
-    color: '#4D4A49',
-    fontSize: '30px',
-  });
+const MENU_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = Object.freeze({
+  fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
+  color: '#4D4A49',
+  fontSize: '30px',
+});
 
 const PLAYER_INPUT_CURSOR_POSITION = Object.freeze({
   x: 150,
@@ -75,18 +74,18 @@ export class TitleScene extends Phaser.Scene {
     );
 
     this.newGameText = this.add
-      .text(menuBgWidth / 2, 40, 'New Game', MENU_BACKGROUND_TEXT_STYLE)
+      .text(menuBgWidth / 2, 40, 'New Game', MENU_TEXT_STYLE)
       .setOrigin(0.5);
 
     this.continueText = this.add
-      .text(menuBgWidth / 2, 90, 'Continue', MENU_BACKGROUND_TEXT_STYLE)
+      .text(menuBgWidth / 2, 90, 'Continue', MENU_TEXT_STYLE)
       .setOrigin(0.5);
 
     if (!this.isContinueButtonEnabled) {
       this.continueText.setAlpha(0.5);
     }
     this.optionsText = this.add
-      .text(menuBgWidth / 2, 140, 'Options', MENU_BACKGROUND_TEXT_STYLE)
+      .text(menuBgWidth / 2, 140, 'Options', MENU_TEXT_STYLE)
       .setOrigin(0.5);
     const menuContainer = this.add.container(0, 0, [
       menuBgContainer,
@@ -128,6 +127,11 @@ export class TitleScene extends Phaser.Scene {
       () => {
         if (this.selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) {
           this.scene.start(SCENE_KEYS.WORLD_SCENE);
+          return;
+        }
+
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS) {
+          this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
           return;
         }
       }

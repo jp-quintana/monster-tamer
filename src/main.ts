@@ -4,6 +4,7 @@ import { PreloadScene } from './scenes/preload-scene';
 import { BattleScene } from './scenes/battle-scene';
 import { WorldScene } from './scenes/world-scene';
 import { TitleScene } from './scenes/title-scene';
+import { OptionsScene } from './scenes/options-scene';
 
 const config: Types.Core.GameConfig = {
   type: Phaser.CANVAS,
@@ -25,4 +26,5 @@ game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
 game.scene.add(SCENE_KEYS.WORLD_SCENE, WorldScene);
 game.scene.add(SCENE_KEYS.BATTLE_SCENE, BattleScene);
 game.scene.add(SCENE_KEYS.TITLE_SCENE, TitleScene);
+game.scene.add(SCENE_KEYS.OPTIONS_SCENE, OptionsScene);
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
