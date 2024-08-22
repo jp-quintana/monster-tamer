@@ -88,6 +88,10 @@ export class PreloadScene extends Phaser.Scene {
       monsterTamerAssetPath + '/ui/cursor.png'
     );
     this.load.image(
+      UI_ASSET_KEYS.CURSOR_WHITE,
+      monsterTamerAssetPath + '/ui/cursor_white.png'
+    );
+    this.load.image(
       UI_ASSET_KEYS.MENU_BACKGROUND,
       kenneysTamerAssetPath + '/ui-space-expansion/glassPanel.png'
     );

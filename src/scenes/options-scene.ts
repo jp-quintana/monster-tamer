@@ -10,6 +10,16 @@ const OPTIONS_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle =
     fontSize: '30px',
   });
 
+const OPTION_MENU_OPTION_INFO_MESSAGE = Object.freeze({
+  TEXT_SPEED: 'Choose one of three text display speeds.',
+  BATTLE_SCENE: 'Choose to display battle animations',
+  BATTLE_STYLE: 'Choose to allow your monster to be recalled between rounds.',
+  SOUND: 'Choose to enable or disable the sound.',
+  VOLUME: 'Choose the volume for the music and sound effects for the game.',
+  MENU_COLOR: 'Choose one of the three menu color options.',
+  CONFIRM: 'Save your changes and go back to the main menu.',
+});
+
 export class OptionsScene extends Phaser.Scene {
   private mainContainer: Phaser.GameObjects.Container;
   private nineSliceMainContainer: NineSlice;
@@ -17,6 +27,12 @@ export class OptionsScene extends Phaser.Scene {
   private battleSceneOptionTextGameObjects: Phaser.GameObjects.Group;
   private battleStyleOptionTextGameObjects: Phaser.GameObjects.Group;
   private soundOptionTextGameObjects: Phaser.GameObjects.Group;
+  private volumeOptionsMenuCursor: Phaser.GameObjects.Rectangle;
+  private volumeOptionsValueText: Phaser.GameObjects.Text;
+  private selectedMenuColor: Phaser.GameObjects.Text;
+  private infoContainer: Phaser.GameObjects.Container;
+  private selectedOptionInfoMessageTextGameObject: Phaser.GameObjects.Text;
+  private optionsMenuCursor: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super({ key: SCENE_KEYS.OPTIONS_SCENE });
@@ -44,6 +60,7 @@ export class OptionsScene extends Phaser.Scene {
     this.mainContainer.setX(100).setY(20);
 
     // create main option sections
+    this.add.text(width / 2, 40, 'Options', OPTIONS_TEXT_STYLE).setOrigin(0.5);
     const menuOptionsPosition = { x: 25, yStart: 55, yIncrement: 55 };
     const menuOptions = [
       'Text Speed',
@@ -90,7 +107,51 @@ export class OptionsScene extends Phaser.Scene {
     ]);
 
     // volume options
+    this.add.rectangle(420, 312, 300, 4, 0xffffff, 1).setOrigin(0, 0.5);
+    this.volumeOptionsMenuCursor = this.add
+      .rectangle(710, 312, 10, 25, 0xff2222, 1)
+      .setOrigin(0, 0.5);
+    this.volumeOptionsValueText = this.add.text(
+      760,
+      295,
+      '100%',
+      OPTIONS_TEXT_STYLE
+    );
+
     // frame options
-    // options
+    this.selectedMenuColor = this.add.text(590, 350, '', OPTIONS_TEXT_STYLE);
+
+    this.add
+      .image(530, 352, UI_ASSET_KEYS.CURSOR_WHITE)
+      .setOrigin(1, 0)
+      .setScale(2.5)
+      .setFlipX(true);
+
+    this.add
+      .image(660, 352, UI_ASSET_KEYS.CURSOR_WHITE)
+      .setOrigin(0, 0)
+      .setScale(2.5);
+
+    // option details container
+    this.infoContainer = this.nineSliceMainContainer.createNineSliceContainer(
+      this,
+      optionMenuWidth,
+      100
+    );
+    this.infoContainer.setX(100).setY(height - 110);
+    this.selectedOptionInfoMessageTextGameObject = this.add.text(
+      125,
+      480,
+      OPTION_MENU_OPTION_INFO_MESSAGE.TEXT_SPEED,
+      {
+        ...OPTIONS_TEXT_STYLE,
+        wordWrap: { width: width - 250 },
+      }
+    );
+
+    this.optionsMenuCursor = this.add
+      .rectangle(110, 70, optionMenuWidth - 20, 40, 0xfffff, 0)
+      .setOrigin(0)
+      .setStrokeStyle(4, 0xe4434a, 1);
   }
 }
