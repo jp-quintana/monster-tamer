@@ -1,5 +1,7 @@
 import { UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
+import { OPTION_MENU_OPTIONS } from '../common/options';
+import { Controls } from '../utils/controls';
 import { NineSlice } from '../utils/nine-slice';
 import { SCENE_KEYS } from './scene-keys';
 
@@ -33,6 +35,8 @@ export class OptionsScene extends Phaser.Scene {
   private infoContainer: Phaser.GameObjects.Container;
   private selectedOptionInfoMessageTextGameObject: Phaser.GameObjects.Text;
   private optionsMenuCursor: Phaser.GameObjects.Rectangle;
+  private controls: Controls;
+  private selectedOptionMenu: OPTION_MENU_OPTIONS;
 
   constructor() {
     super({ key: SCENE_KEYS.OPTIONS_SCENE });
@@ -44,6 +48,8 @@ export class OptionsScene extends Phaser.Scene {
       textureManager: this.sys.textures,
       assetKey: UI_ASSET_KEYS.MENU_BACKGROUND,
     });
+
+    this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
   }
 
   create() {
@@ -153,5 +159,7 @@ export class OptionsScene extends Phaser.Scene {
       .rectangle(110, 70, optionMenuWidth - 20, 40, 0xfffff, 0)
       .setOrigin(0)
       .setStrokeStyle(4, 0xe4434a, 1);
+
+    this.controls = new Controls(this);
   }
 }
