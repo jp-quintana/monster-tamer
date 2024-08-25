@@ -1,7 +1,9 @@
 import { UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
+import { DIRECTION } from '../common/direction';
 import { OPTION_MENU_OPTIONS } from '../common/options';
 import { Controls } from '../utils/controls';
+import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { SCENE_KEYS } from './scene-keys';
 
@@ -161,5 +163,210 @@ export class OptionsScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xe4434a, 1);
 
     this.controls = new Controls(this);
+
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.scene.start(SCENE_KEYS.TITLE_SCENE);
+      }
+    );
+  }
+
+  update() {
+    if (this.controls.isInputLocked) return;
+
+    if (this.controls.wasEscKeyPressed()) {
+      this.controls.lockInput = true;
+      this.cameras.main.fadeOut(500, 0, 0, 0);
+      return;
+    }
+
+    if (
+      this.controls.wasSpaceKeyPressed() &&
+      this.selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM
+    ) {
+      this.controls.lockInput = true;
+      this.cameras.main.fadeOut(500, 0, 0, 0);
+      return;
+    }
+
+    const selectedDirection = this.controls.getDirectionKeyJustPressed();
+
+    if (selectedDirection !== DIRECTION.NONE) {
+      this.moveOptionMenuCursor(selectedDirection);
+    }
+  }
+
+  private moveOptionMenuCursor(direction: DIRECTION) {
+    if (direction === DIRECTION.NONE) return;
+
+    this.updateSelectedOptionMenuFromInput(direction);
+
+    switch (this.selectedOptionMenu) {
+      case OPTION_MENU_OPTIONS.TEXT_SPEED:
+        this.optionsMenuCursor.setY(70);
+        break;
+      case OPTION_MENU_OPTIONS.BATTLE_SCENE:
+        this.optionsMenuCursor.setY(125);
+        break;
+      case OPTION_MENU_OPTIONS.BATTLE_STYLE:
+        this.optionsMenuCursor.setY(180);
+        break;
+      case OPTION_MENU_OPTIONS.SOUND:
+        this.optionsMenuCursor.setY(235);
+        break;
+      case OPTION_MENU_OPTIONS.VOLUME:
+        this.optionsMenuCursor.setY(290);
+        break;
+      case OPTION_MENU_OPTIONS.MENU_COLOR:
+        this.optionsMenuCursor.setY(345);
+        break;
+      case OPTION_MENU_OPTIONS.CONFIRM:
+        this.optionsMenuCursor.setY(400);
+        break;
+      default:
+        exhaustiveGuard(this.selectedOptionMenu);
+    }
+
+    this.selectedOptionInfoMessageTextGameObject.setText(
+      OPTION_MENU_OPTION_INFO_MESSAGE[this.selectedOptionMenu]
+    );
+  }
+
+  private updateSelectedOptionMenuFromInput(direction: DIRECTION) {
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.TEXT_SPEED) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.CONFIRM;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.BATTLE_SCENE;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.BATTLE_SCENE) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.BATTLE_STYLE;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.BATTLE_STYLE) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.BATTLE_SCENE;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.SOUND;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.SOUND) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.BATTLE_STYLE;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.VOLUME;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.VOLUME) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.SOUND;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.MENU_COLOR;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.MENU_COLOR) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.VOLUME;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.CONFIRM;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    if (this.selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM) {
+      switch (direction) {
+        case DIRECTION.UP:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.MENU_COLOR;
+          break;
+        case DIRECTION.DOWN:
+          this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
+          break;
+        case DIRECTION.RIGHT:
+        case DIRECTION.LEFT:
+        case DIRECTION.NONE:
+          // TODO:
+          break;
+        default:
+          exhaustiveGuard(direction);
+      }
+      return;
+    }
+
+    exhaustiveGuard(this.selectedOptionMenu);
   }
 }
