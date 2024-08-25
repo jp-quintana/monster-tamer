@@ -1,7 +1,15 @@
 import { UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { DIRECTION } from '../common/direction';
-import { OPTION_MENU_OPTIONS } from '../common/options';
+import {
+  BATTLE_SCENE_OPTIONS,
+  BATTLE_STYLE_OPTIONS,
+  COLOR_OPTIONS,
+  OPTION_MENU_OPTIONS,
+  SOUND_OPTIONS,
+  TEXT_SPEED_OPTIONS,
+  VOLUME_OPTIONS,
+} from '../common/options';
 import { Controls } from '../utils/controls';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
@@ -24,6 +32,11 @@ const OPTION_MENU_OPTION_INFO_MESSAGE = Object.freeze({
   CONFIRM: 'Save your changes and go back to the main menu.',
 });
 
+const enum TEXT_FONT_COLORS {
+  NOT_SELECTED = '#FFFFFF',
+  SELECTED = '#FF2222',
+}
+
 export class OptionsScene extends Phaser.Scene {
   private mainContainer: Phaser.GameObjects.Container;
   private nineSliceMainContainer: NineSlice;
@@ -39,6 +52,12 @@ export class OptionsScene extends Phaser.Scene {
   private optionsMenuCursor: Phaser.GameObjects.Rectangle;
   private controls: Controls;
   private selectedOptionMenu: OPTION_MENU_OPTIONS;
+  private selectedTextSpeedOption: TEXT_SPEED_OPTIONS;
+  private selectedBattleSceneOption: BATTLE_SCENE_OPTIONS;
+  private selectedBattleStyleOption: BATTLE_STYLE_OPTIONS;
+  private selectedSoundMenuOption: SOUND_OPTIONS;
+  private selectedVolumeOption: VOLUME_OPTIONS;
+  private selectedMenuColorOption: COLOR_OPTIONS;
 
   constructor() {
     super({ key: SCENE_KEYS.OPTIONS_SCENE });
@@ -52,6 +71,13 @@ export class OptionsScene extends Phaser.Scene {
     });
 
     this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
+
+    this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
+    this.selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.ON;
+    this.selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SHIFT;
+    this.selectedSoundMenuOption = SOUND_OPTIONS.ON;
+    this.selectedVolumeOption = 4;
+    this.selectedMenuColorOption = 0;
   }
 
   create() {
@@ -91,19 +117,19 @@ export class OptionsScene extends Phaser.Scene {
 
     // create text speed options
     this.textSpeedOptionTextGameObjects = this.add.group([
-      this.add.text(420, 75, 'Slow', OPTIONS_TEXT_STYLE),
-      this.add.text(590, 75, 'Mid', OPTIONS_TEXT_STYLE),
-      this.add.text(760, 75, 'Fast', OPTIONS_TEXT_STYLE),
+      this.add.text(420, 75, TEXT_SPEED_OPTIONS.SLOW, OPTIONS_TEXT_STYLE),
+      this.add.text(590, 75, TEXT_SPEED_OPTIONS.MID, OPTIONS_TEXT_STYLE),
+      this.add.text(760, 75, TEXT_SPEED_OPTIONS.FAST, OPTIONS_TEXT_STYLE),
     ]);
 
     // create battle scene options
     this.battleSceneOptionTextGameObjects = this.add.group([
-      this.add.text(420, 130, 'On', OPTIONS_TEXT_STYLE),
-      this.add.text(590, 130, 'Off', OPTIONS_TEXT_STYLE),
+      this.add.text(420, 130, BATTLE_SCENE_OPTIONS.ON, OPTIONS_TEXT_STYLE),
+      this.add.text(590, 130, BATTLE_SCENE_OPTIONS.OFF, OPTIONS_TEXT_STYLE),
     ]);
 
     // create battle style options
-    this.battleSceneOptionTextGameObjects = this.add.group([
+    this.battleStyleOptionTextGameObjects = this.add.group([
       this.add.text(420, 185, 'Set', OPTIONS_TEXT_STYLE),
       this.add.text(590, 185, 'Shift', OPTIONS_TEXT_STYLE),
     ]);
@@ -162,6 +188,8 @@ export class OptionsScene extends Phaser.Scene {
       .setOrigin(0)
       .setStrokeStyle(4, 0xe4434a, 1);
 
+    this.updateTextSpeedOptionGameObjects();
+    this.updateBattleSceneOptionGameObjects();
     this.controls = new Controls(this);
 
     this.cameras.main.once(
@@ -244,8 +272,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateTextSpeedOption(direction);
+          this.updateTextSpeedOptionGameObjects();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -263,8 +293,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateBattleSceneOption(direction);
+          this.updateBattleSceneOptionGameObjects();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -282,8 +314,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateBattleStyleOption(direction);
+          this.updateBattleStyleOptionGameObjects();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -301,8 +335,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateSoundOption(direction);
+          this.updateSoundOptionGameObjects();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -320,8 +356,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateVolumeOption(direction);
+          this.updateVolumeOptionSlider();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -339,8 +377,10 @@ export class OptionsScene extends Phaser.Scene {
           break;
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
+          this.updateMenuColorOption(direction);
+          this.updateMenuColorDisplayText();
+          break;
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -359,7 +399,6 @@ export class OptionsScene extends Phaser.Scene {
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
         case DIRECTION.NONE:
-          // TODO:
           break;
         default:
           exhaustiveGuard(direction);
@@ -369,4 +408,108 @@ export class OptionsScene extends Phaser.Scene {
 
     exhaustiveGuard(this.selectedOptionMenu);
   }
+
+  private updateTextSpeedOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      switch (this.selectedTextSpeedOption) {
+        case TEXT_SPEED_OPTIONS.SLOW:
+          break;
+        case TEXT_SPEED_OPTIONS.MID:
+          this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.SLOW;
+          break;
+        case TEXT_SPEED_OPTIONS.FAST:
+          this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
+          break;
+        default:
+          exhaustiveGuard(this.selectedTextSpeedOption);
+      }
+      return;
+    }
+
+    if (direction === DIRECTION.RIGHT) {
+      switch (this.selectedTextSpeedOption) {
+        case TEXT_SPEED_OPTIONS.SLOW:
+          this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
+          break;
+        case TEXT_SPEED_OPTIONS.MID:
+          this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.FAST;
+          break;
+        case TEXT_SPEED_OPTIONS.FAST:
+          break;
+        default:
+          exhaustiveGuard(this.selectedTextSpeedOption);
+      }
+      return;
+    }
+
+    exhaustiveGuard(direction);
+  }
+
+  private updateTextSpeedOptionGameObjects() {
+    (
+      this.textSpeedOptionTextGameObjects.getChildren() as Phaser.GameObjects.Text[]
+    ).forEach((obj) => {
+      obj.setColor(
+        obj.text === this.selectedTextSpeedOption
+          ? TEXT_FONT_COLORS.SELECTED
+          : TEXT_FONT_COLORS.NOT_SELECTED
+      );
+    });
+  }
+
+  private updateBattleSceneOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      switch (this.selectedBattleSceneOption) {
+        case BATTLE_SCENE_OPTIONS.OFF:
+          this.selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.ON;
+          break;
+        case BATTLE_SCENE_OPTIONS.ON:
+          break;
+        default:
+          exhaustiveGuard(this.selectedBattleSceneOption);
+      }
+      return;
+    }
+
+    if (direction === DIRECTION.RIGHT) {
+      switch (this.selectedBattleSceneOption) {
+        case BATTLE_SCENE_OPTIONS.OFF:
+          break;
+        case BATTLE_SCENE_OPTIONS.ON:
+          this.selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.OFF;
+          break;
+        default:
+          exhaustiveGuard(this.selectedBattleSceneOption);
+      }
+      return;
+    }
+
+    exhaustiveGuard(direction);
+  }
+
+  private updateBattleSceneOptionGameObjects() {
+    (
+      this.battleSceneOptionTextGameObjects.getChildren() as Phaser.GameObjects.Text[]
+    ).forEach((obj) => {
+      obj.setColor(
+        obj.text === this.selectedBattleSceneOption
+          ? TEXT_FONT_COLORS.SELECTED
+          : TEXT_FONT_COLORS.NOT_SELECTED
+      );
+    });
+  }
+
+  private updateBattleStyleOption(
+    direction: DIRECTION.LEFT | DIRECTION.RIGHT
+  ) {}
+  private updateBattleStyleOptionGameObjects() {}
+
+  private updateSoundOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
+  private updateSoundOptionGameObjects() {}
+
+  private updateVolumeOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
+  private updateVolumeOptionSlider() {}
+
+  private updateMenuColorOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
+  private updateMenuColorDisplayText() {}
 }
