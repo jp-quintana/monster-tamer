@@ -11,6 +11,7 @@ import {
   VOLUME_OPTIONS,
 } from '../common/options';
 import { Controls } from '../utils/controls';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { SCENE_KEYS } from './scene-keys';
@@ -78,12 +79,24 @@ export class OptionsScene extends Phaser.Scene {
 
     this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
 
-    this.selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
-    this.selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.ON;
-    this.selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SHIFT;
-    this.selectedSoundMenuOption = SOUND_OPTIONS.ON;
-    this.selectedVolumeOption = 4;
-    this.selectedMenuColorOption = 0;
+    this.selectedTextSpeedOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_TEXT_SPEED
+    );
+    this.selectedBattleSceneOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS
+    );
+    this.selectedBattleStyleOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_STYLE
+    );
+    this.selectedSoundMenuOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_SOUND
+    );
+    this.selectedVolumeOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_VOLUME
+    );
+    this.selectedMenuColorOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR
+    );
   }
 
   create() {
@@ -226,6 +239,7 @@ export class OptionsScene extends Phaser.Scene {
       this.selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM
     ) {
       this.controls.lockInput = true;
+      this.updateOptionDataInDataManager();
       this.cameras.main.fadeOut(500, 0, 0, 0);
       return;
     }
@@ -235,6 +249,22 @@ export class OptionsScene extends Phaser.Scene {
     if (selectedDirection !== DIRECTION.NONE) {
       this.moveOptionMenuCursor(selectedDirection);
     }
+  }
+
+  private updateOptionDataInDataManager() {
+    dataManager.store.set({
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_TEXT_SPEED]:
+        this.selectedTextSpeedOption,
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS]:
+        this.selectedBattleSceneOption,
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_STYLE]:
+        this.selectedBattleStyleOption,
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_SOUND]: this.selectedSoundMenuOption,
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_VOLUME]: this.selectedVolumeOption,
+      [DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR]:
+        this.selectedMenuColorOption,
+    });
+    dataManager.saveData();
   }
 
   private moveOptionMenuCursor(direction: DIRECTION) {

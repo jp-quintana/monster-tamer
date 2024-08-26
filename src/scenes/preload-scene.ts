@@ -12,6 +12,7 @@ import {
 } from '../assets/asset-keys.ts';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys.ts';
 import { WebFontFileLoader } from '../assets/web-font-file-loader.ts';
+import { dataManager } from '../utils/data-manager.ts';
 import { DataUtils } from '../utils/data-utils.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
@@ -197,6 +198,7 @@ export class PreloadScene extends Phaser.Scene {
 
   create() {
     this.createAnimations();
+    dataManager.loadData();
     this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
   }
 
