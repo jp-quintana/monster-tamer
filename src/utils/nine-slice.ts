@@ -1,7 +1,7 @@
 interface NineSliceConfig {
   cornerCutSize: number;
   textureManager: Phaser.Textures.TextureManager;
-  assetKey: string;
+  assetKeys: string[];
 }
 
 interface TextureFrames {
@@ -20,14 +20,15 @@ const enum ASSET_CUT_FRAMES {
   BR = 'BR',
 }
 
+const ASSET_CUT_FRAME_DATA_MANAGER_NAME = 'assetCutFrame';
 export class NineSlice {
   private cornerCutSize: number;
-  private assetKey: string;
 
   constructor(config: NineSliceConfig) {
     this.cornerCutSize = config.cornerCutSize;
-    this.assetKey = config.assetKey;
-    this.createNineSliceTextures(config.textureManager, this.assetKey);
+    config.assetKeys.forEach((assetKey) => {
+      this.createNineSliceTextures(config.textureManager, assetKey);
+    });
   }
 
   private createNineSliceTextures(
@@ -147,65 +148,117 @@ export class NineSlice {
   createNineSliceContainer(
     scene: Phaser.Scene,
     targetWidth = 600,
-    targetHeight = 400
+    targetHeight = 400,
+    assetKey: string
   ) {
     const tl = scene.add
-      .image(0, 0, this.assetKey, ASSET_CUT_FRAMES.TL)
+      .image(0, 0, assetKey, ASSET_CUT_FRAMES.TL)
       .setOrigin(0);
+
+    tl.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.TL);
+
     const tm = scene.add
-      .image(tl.displayWidth, 0, this.assetKey, ASSET_CUT_FRAMES.TM)
+      .image(tl.displayWidth, 0, assetKey, ASSET_CUT_FRAMES.TM)
       .setOrigin(0);
     tm.displayWidth = targetWidth - this.cornerCutSize * 2;
+
+    tm.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.TM);
+
     const tr = scene.add
       .image(
         tl.displayWidth + tm.displayWidth,
         0,
-        this.assetKey,
+        assetKey,
         ASSET_CUT_FRAMES.TR
       )
       .setOrigin(0);
 
+    tr.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.TR);
+
     const ml = scene.add
-      .image(0, tl.displayHeight, this.assetKey, ASSET_CUT_FRAMES.ML)
+      .image(0, tl.displayHeight, assetKey, ASSET_CUT_FRAMES.ML)
       .setOrigin(0);
     ml.displayHeight = targetHeight - this.cornerCutSize * 2;
+
+    ml.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.ML);
+
     const mm = scene.add
-      .image(ml.displayWidth, ml.y, this.assetKey, ASSET_CUT_FRAMES.MM)
+      .image(ml.displayWidth, ml.y, assetKey, ASSET_CUT_FRAMES.MM)
       .setOrigin(0);
     mm.displayHeight = targetHeight - this.cornerCutSize * 2;
     mm.displayWidth = targetWidth - this.cornerCutSize * 2;
+
+    mm.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.MM);
+
     const mr = scene.add
       .image(
         ml.displayWidth + mm.displayWidth,
         ml.y,
-        this.assetKey,
+        assetKey,
         ASSET_CUT_FRAMES.MR
       )
       .setOrigin(0);
     mr.displayHeight = mm.displayHeight;
 
+    mr.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.MR);
+
     const bl = scene.add
       .image(
         0,
         tl.displayHeight + ml.displayHeight,
-        this.assetKey,
+        assetKey,
         ASSET_CUT_FRAMES.BL
       )
       .setOrigin(0);
+
+    bl.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.BL);
+
     const bm = scene.add
-      .image(bl.displayWidth, bl.y, this.assetKey, ASSET_CUT_FRAMES.BM)
+      .image(bl.displayWidth, bl.y, assetKey, ASSET_CUT_FRAMES.BM)
       .setOrigin(0);
     bm.displayWidth = tm.displayWidth;
+
+    bm.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.BM);
+
     const br = scene.add
       .image(
         bl.displayWidth + bm.displayWidth,
         bl.y,
-        this.assetKey,
+        assetKey,
         ASSET_CUT_FRAMES.BR
       )
       .setOrigin(0);
 
+    br.setData(ASSET_CUT_FRAME_DATA_MANAGER_NAME, ASSET_CUT_FRAMES.BR);
+
     // finally, create a container to group our new game objects together in
     return scene.add.container(0, 0, [tl, tm, tr, ml, mm, mr, bl, bm, br]);
+  }
+
+  updateNineSliceContainerTexture(
+    textureManager: Phaser.Textures.TextureManager,
+    container: Phaser.GameObjects.Container,
+    assetKey: string
+  ) {
+    const texture = textureManager.get(assetKey);
+
+    if (texture.key === '__MISSING') {
+      console.warn(
+        'The provided texture does not have the required nine slice frames'
+      );
+      return;
+    }
+
+    container.each((gameObject: Phaser.GameObjects.Image) => {
+      const phaserImageGameObject = gameObject;
+      if (phaserImageGameObject.type !== 'Image') return;
+
+      const frameName = phaserImageGameObject.getData(
+        ASSET_CUT_FRAME_DATA_MANAGER_NAME
+      );
+
+      if (frameName === undefined) return;
+      phaserImageGameObject.setTexture(assetKey, frameName);
+    });
   }
 }

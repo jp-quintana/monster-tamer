@@ -42,7 +42,7 @@ export class TitleScene extends Phaser.Scene {
     this.nineSliceMenu = new NineSlice({
       cornerCutSize: 32,
       textureManager: this.sys.textures,
-      assetKey: UI_ASSET_KEYS.MENU_BACKGROUND,
+      assetKeys: [UI_ASSET_KEYS.MENU_BACKGROUND],
     });
   }
 
@@ -70,7 +70,8 @@ export class TitleScene extends Phaser.Scene {
     const menuBgContainer = this.nineSliceMenu.createNineSliceContainer(
       this,
       menuBgWidth,
-      200
+      200,
+      UI_ASSET_KEYS.MENU_BACKGROUND
     );
 
     this.newGameText = this.add

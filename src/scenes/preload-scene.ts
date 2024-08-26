@@ -95,6 +95,14 @@ export class PreloadScene extends Phaser.Scene {
       UI_ASSET_KEYS.MENU_BACKGROUND,
       kenneysTamerAssetPath + '/ui-space-expansion/glassPanel.png'
     );
+    this.load.image(
+      UI_ASSET_KEYS.MENU_BACKGROUND_GREEN,
+      kenneysTamerAssetPath + '/ui-space-expansion/glassPanel_green.png'
+    );
+    this.load.image(
+      UI_ASSET_KEYS.MENU_BACKGROUND_PURPLE,
+      kenneysTamerAssetPath + '/ui-space-expansion/glassPanel_purple.png'
+    );
 
     // load json data
     this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');

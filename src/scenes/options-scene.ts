@@ -69,7 +69,11 @@ export class OptionsScene extends Phaser.Scene {
     this.nineSliceMainContainer = new NineSlice({
       cornerCutSize: 32,
       textureManager: this.sys.textures,
-      assetKey: UI_ASSET_KEYS.MENU_BACKGROUND,
+      assetKeys: [
+        UI_ASSET_KEYS.MENU_BACKGROUND,
+        UI_ASSET_KEYS.MENU_BACKGROUND_PURPLE,
+        UI_ASSET_KEYS.MENU_BACKGROUND_GREEN,
+      ],
     });
 
     this.selectedOptionMenu = OPTION_MENU_OPTIONS.TEXT_SPEED;
@@ -90,7 +94,8 @@ export class OptionsScene extends Phaser.Scene {
     this.mainContainer = this.nineSliceMainContainer.createNineSliceContainer(
       this,
       optionMenuWidth,
-      432
+      432,
+      UI_ASSET_KEYS.MENU_BACKGROUND
     );
 
     this.mainContainer.setX(100).setY(20);
@@ -172,7 +177,8 @@ export class OptionsScene extends Phaser.Scene {
     this.infoContainer = this.nineSliceMainContainer.createNineSliceContainer(
       this,
       optionMenuWidth,
-      100
+      100,
+      UI_ASSET_KEYS.MENU_BACKGROUND
     );
     this.infoContainer.setX(100).setY(height - 110);
     this.selectedOptionInfoMessageTextGameObject = this.add.text(
@@ -636,17 +642,47 @@ export class OptionsScene extends Phaser.Scene {
   private updateMenuColorDisplayText() {
     switch (this.selectedMenuColorOption) {
       case 0:
-        this.leftMenuColorWhiteCursor.setAlpha(0);
+        this.leftMenuColorWhiteCursor.setAlpha(0.3);
         this.selectedMenuColor.setText('1');
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.mainContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND
+        );
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.infoContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND
+        );
         break;
       case 1:
         this.leftMenuColorWhiteCursor.setAlpha(1);
         this.rightMenuColorWhiteCursor.setAlpha(1);
         this.selectedMenuColor.setText('2');
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.mainContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND_GREEN
+        );
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.infoContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND_GREEN
+        );
         break;
       case 2:
-        this.rightMenuColorWhiteCursor.setAlpha(0);
+        this.rightMenuColorWhiteCursor.setAlpha(0.3);
         this.selectedMenuColor.setText('3');
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.mainContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND_PURPLE
+        );
+        this.nineSliceMainContainer.updateNineSliceContainerTexture(
+          this.sys.textures,
+          this.infoContainer,
+          UI_ASSET_KEYS.MENU_BACKGROUND_PURPLE
+        );
         break;
       default:
         exhaustiveGuard(this.selectedMenuColorOption);
