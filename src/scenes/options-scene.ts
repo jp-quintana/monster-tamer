@@ -369,7 +369,6 @@ export class OptionsScene extends Phaser.Scene {
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
           this.updateVolumeOption(direction);
-          console.log(this.selectedVolumeOption);
           this.updateVolumeOptionSlider();
           break;
         case DIRECTION.NONE:
