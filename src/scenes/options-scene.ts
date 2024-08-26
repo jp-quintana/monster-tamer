@@ -47,6 +47,8 @@ export class OptionsScene extends Phaser.Scene {
   private volumeOptionsMenuCursor: Phaser.GameObjects.Rectangle;
   private volumeOptionsValueText: Phaser.GameObjects.Text;
   private selectedMenuColor: Phaser.GameObjects.Text;
+  private leftMenuColorWhiteCursor: Phaser.GameObjects.Image;
+  private rightMenuColorWhiteCursor: Phaser.GameObjects.Image;
   private infoContainer: Phaser.GameObjects.Container;
   private selectedOptionInfoMessageTextGameObject: Phaser.GameObjects.Text;
   private optionsMenuCursor: Phaser.GameObjects.Rectangle;
@@ -130,14 +132,14 @@ export class OptionsScene extends Phaser.Scene {
 
     // create battle style options
     this.battleStyleOptionTextGameObjects = this.add.group([
-      this.add.text(420, 185, 'Set', OPTIONS_TEXT_STYLE),
-      this.add.text(590, 185, 'Shift', OPTIONS_TEXT_STYLE),
+      this.add.text(420, 185, BATTLE_STYLE_OPTIONS.SET, OPTIONS_TEXT_STYLE),
+      this.add.text(590, 185, BATTLE_STYLE_OPTIONS.SHIFT, OPTIONS_TEXT_STYLE),
     ]);
 
     // create sound options
     this.soundOptionTextGameObjects = this.add.group([
-      this.add.text(420, 240, 'On', OPTIONS_TEXT_STYLE),
-      this.add.text(590, 240, 'Off', OPTIONS_TEXT_STYLE),
+      this.add.text(420, 240, SOUND_OPTIONS.ON, OPTIONS_TEXT_STYLE),
+      this.add.text(590, 240, SOUND_OPTIONS.OFF, OPTIONS_TEXT_STYLE),
     ]);
 
     // volume options
@@ -155,13 +157,13 @@ export class OptionsScene extends Phaser.Scene {
     // frame options
     this.selectedMenuColor = this.add.text(590, 350, '', OPTIONS_TEXT_STYLE);
 
-    this.add
+    this.leftMenuColorWhiteCursor = this.add
       .image(530, 352, UI_ASSET_KEYS.CURSOR_WHITE)
       .setOrigin(1, 0)
       .setScale(2.5)
       .setFlipX(true);
 
-    this.add
+    this.rightMenuColorWhiteCursor = this.add
       .image(660, 352, UI_ASSET_KEYS.CURSOR_WHITE)
       .setOrigin(0, 0)
       .setScale(2.5);
@@ -190,6 +192,10 @@ export class OptionsScene extends Phaser.Scene {
 
     this.updateTextSpeedOptionGameObjects();
     this.updateBattleSceneOptionGameObjects();
+    this.updateBattleStyleOptionGameObjects();
+    this.updateSoundOptionGameObjects();
+    this.updateVolumeOptionSlider();
+    this.updateMenuColorDisplayText();
     this.controls = new Controls(this);
 
     this.cameras.main.once(
@@ -357,6 +363,7 @@ export class OptionsScene extends Phaser.Scene {
         case DIRECTION.RIGHT:
         case DIRECTION.LEFT:
           this.updateVolumeOption(direction);
+          console.log(this.selectedVolumeOption);
           this.updateVolumeOptionSlider();
           break;
         case DIRECTION.NONE:
@@ -499,17 +506,152 @@ export class OptionsScene extends Phaser.Scene {
     });
   }
 
-  private updateBattleStyleOption(
-    direction: DIRECTION.LEFT | DIRECTION.RIGHT
-  ) {}
-  private updateBattleStyleOptionGameObjects() {}
+  private updateBattleStyleOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      switch (this.selectedBattleStyleOption) {
+        case BATTLE_STYLE_OPTIONS.SET:
+          break;
+        case BATTLE_STYLE_OPTIONS.SHIFT:
+          this.selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SET;
+          break;
+        default:
+          exhaustiveGuard(this.selectedBattleStyleOption);
+      }
+      return;
+    }
 
-  private updateSoundOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
-  private updateSoundOptionGameObjects() {}
+    if (direction === DIRECTION.RIGHT) {
+      switch (this.selectedBattleStyleOption) {
+        case BATTLE_STYLE_OPTIONS.SET:
+          this.selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SHIFT;
+          break;
+        case BATTLE_STYLE_OPTIONS.SHIFT:
+          break;
+        default:
+          exhaustiveGuard(this.selectedBattleStyleOption);
+      }
+      return;
+    }
 
-  private updateVolumeOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
-  private updateVolumeOptionSlider() {}
+    exhaustiveGuard(direction);
+  }
 
-  private updateMenuColorOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {}
-  private updateMenuColorDisplayText() {}
+  private updateBattleStyleOptionGameObjects() {
+    (
+      this.battleStyleOptionTextGameObjects.getChildren() as Phaser.GameObjects.Text[]
+    ).forEach((obj) => {
+      obj.setColor(
+        obj.text === this.selectedBattleStyleOption
+          ? TEXT_FONT_COLORS.SELECTED
+          : TEXT_FONT_COLORS.NOT_SELECTED
+      );
+    });
+  }
+
+  private updateSoundOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      switch (this.selectedSoundMenuOption) {
+        case SOUND_OPTIONS.ON:
+          break;
+        case SOUND_OPTIONS.OFF:
+          this.selectedSoundMenuOption = SOUND_OPTIONS.ON;
+          break;
+        default:
+          exhaustiveGuard(this.selectedSoundMenuOption);
+      }
+      return;
+    }
+
+    if (direction === DIRECTION.RIGHT) {
+      switch (this.selectedSoundMenuOption) {
+        case SOUND_OPTIONS.ON:
+          this.selectedSoundMenuOption = SOUND_OPTIONS.OFF;
+          break;
+        case SOUND_OPTIONS.OFF:
+          break;
+        default:
+          exhaustiveGuard(this.selectedSoundMenuOption);
+      }
+      return;
+    }
+
+    exhaustiveGuard(direction);
+  }
+  private updateSoundOptionGameObjects() {
+    (
+      this.soundOptionTextGameObjects.getChildren() as Phaser.GameObjects.Text[]
+    ).forEach((obj) => {
+      obj.setColor(
+        obj.text === this.selectedSoundMenuOption
+          ? TEXT_FONT_COLORS.SELECTED
+          : TEXT_FONT_COLORS.NOT_SELECTED
+      );
+    });
+  }
+
+  private updateVolumeOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      if (this.selectedVolumeOption === 0) return;
+
+      this.selectedVolumeOption--;
+
+      return;
+    }
+
+    if (direction === DIRECTION.RIGHT) {
+      if (this.selectedVolumeOption === 4) return;
+
+      this.selectedVolumeOption++;
+
+      return;
+    }
+
+    exhaustiveGuard(direction);
+  }
+
+  private updateVolumeOptionSlider() {
+    this.volumeOptionsMenuCursor.setX(420 + this.selectedVolumeOption * 72.5);
+    this.volumeOptionsValueText.setText(`${this.selectedVolumeOption * 25}%`);
+  }
+
+  private updateMenuColorOption(direction: DIRECTION.LEFT | DIRECTION.RIGHT) {
+    if (direction === DIRECTION.LEFT) {
+      if (this.selectedMenuColorOption === 0) return;
+
+      this.selectedMenuColorOption--;
+
+      return;
+    }
+
+    if (direction === DIRECTION.RIGHT) {
+      if (this.selectedMenuColorOption === 2) return;
+
+      this.selectedMenuColorOption++;
+
+      return;
+    }
+
+    exhaustiveGuard(direction);
+  }
+  private updateMenuColorDisplayText() {
+    switch (this.selectedMenuColorOption) {
+      case 0:
+        this.leftMenuColorWhiteCursor.setAlpha(0);
+        this.selectedMenuColor.setText('1');
+        break;
+      case 1:
+        this.leftMenuColorWhiteCursor.setAlpha(1);
+        this.rightMenuColorWhiteCursor.setAlpha(1);
+        this.selectedMenuColor.setText('2');
+        break;
+      case 2:
+        this.rightMenuColorWhiteCursor.setAlpha(0);
+        this.selectedMenuColor.setText('3');
+        break;
+      default:
+        exhaustiveGuard(this.selectedMenuColorOption);
+        break;
+    }
+    return;
+  }
 }
