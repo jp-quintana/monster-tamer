@@ -1,5 +1,6 @@
 import { UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
+import { dataManager } from '../utils/data-manager';
 import { animateText, CANNOT_READ_SIGN_TEXT } from '../utils/text-utils';
 
 const UI_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = Object.freeze({
@@ -88,7 +89,7 @@ export class DialogUi {
       this.uiText,
       this.messagesToShow.shift() as string,
       {
-        delay: 50,
+        delay: dataManager.getAnimatedTextSpeed(),
         callback: () => {
           this.#textAnimationPlaying = false;
         },

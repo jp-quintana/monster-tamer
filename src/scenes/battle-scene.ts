@@ -1,4 +1,4 @@
-import { MONSTER_ASSET_KEYS, WORLD_ASSET_KEYS } from '../assets/asset-keys.ts';
+import { MONSTER_ASSET_KEYS } from '../assets/asset-keys.ts';
 import {
   ATTACK_TARGET,
   AttackManager,
@@ -8,8 +8,9 @@ import { EnemyBattleMonster } from '../battle/monsters/enemy-battle-monster.ts';
 import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts';
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
-import { SKIP_BATTLE_ANIMATIONS } from '../config.ts';
+import { BATTLE_SCENE_OPTIONS } from '../common/options.ts';
 import { Controls } from '../utils/controls.ts';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
@@ -34,6 +35,7 @@ export class BattleScene extends Phaser.Scene {
   private activePlayerAttackIndex: number;
   private battleStateMachine: StateMachine;
   private attackManager: AttackManager;
+  private skipAnimations: boolean;
 
   constructor() {
     super({
@@ -43,6 +45,19 @@ export class BattleScene extends Phaser.Scene {
 
   init() {
     this.activePlayerAttackIndex = -1;
+    const chosenBattleSceneOption = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS
+    );
+
+    if (
+      chosenBattleSceneOption === undefined ||
+      chosenBattleSceneOption === BATTLE_SCENE_OPTIONS.ON
+    ) {
+      this.skipAnimations = false;
+      return;
+    }
+
+    this.skipAnimations = true;
   }
 
   create() {
@@ -62,7 +77,7 @@ export class BattleScene extends Phaser.Scene {
         attackIds: [1],
         baseAttack: 5,
       },
-      skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
+      skipBattleAnimations: this.skipAnimations,
     });
 
     this.activePlayerMonster = new PlayerBattleMonster({
@@ -77,14 +92,18 @@ export class BattleScene extends Phaser.Scene {
         attackIds: [2],
         baseAttack: 10,
       },
-      skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
+      skipBattleAnimations: this.skipAnimations,
     });
 
-    this.battleMenu = new BattleMenu(this, this.activePlayerMonster);
+    this.battleMenu = new BattleMenu(
+      this,
+      this.activePlayerMonster,
+      this.skipAnimations
+    );
 
     this.createBattleStateMachine();
 
-    this.attackManager = new AttackManager(this, SKIP_BATTLE_ANIMATIONS);
+    this.attackManager = new AttackManager(this, this.skipAnimations);
 
     this.controls = new Controls(this);
   }
@@ -140,16 +159,9 @@ export class BattleScene extends Phaser.Scene {
       this.battleMenu.handlePlayerInput(selectedDirection);
   }
 
-  private handleBattleSequence() {
-    // general battle flow
-    // show attack used, brief pause
-    // then play attack animation, brief pause
-    // then play damage animation, brief pause
-    // then play health bar animation, brief pause
-    // then repeat the steps above for the other monster
-
-    this.playerAttack();
-  }
+  // private handleBattleSequence() {
+  //   this.playerAttack();
+  // }
 
   private playerAttack() {
     if (this.activePlayerMonster.isFainted) {
@@ -178,8 +190,7 @@ export class BattleScene extends Phaser.Scene {
             }
           );
         });
-      },
-      SKIP_BATTLE_ANIMATIONS
+      }
     );
   }
 
@@ -224,8 +235,7 @@ export class BattleScene extends Phaser.Scene {
           ],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          },
-          SKIP_BATTLE_ANIMATIONS
+          }
         );
       });
       return;
@@ -240,8 +250,7 @@ export class BattleScene extends Phaser.Scene {
           ],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          },
-          SKIP_BATTLE_ANIMATIONS
+          }
         );
       });
       return;
@@ -269,7 +278,7 @@ export class BattleScene extends Phaser.Scene {
         createSceneTransition(this, {
           callback: () =>
             this.battleStateMachine.setState(BATTLE_STATES.PRE_BATTLE_INFO),
-          skipSceneTransition: SKIP_BATTLE_ANIMATIONS,
+          skipSceneTransition: this.skipAnimations,
         });
       },
     });
@@ -290,8 +299,7 @@ export class BattleScene extends Phaser.Scene {
                   BATTLE_STATES.BRING_OUT_MONSTER
                 );
               });
-            },
-            SKIP_BATTLE_ANIMATIONS
+            }
           );
         });
       },
@@ -312,8 +320,7 @@ export class BattleScene extends Phaser.Scene {
               this.time.delayedCall(1200, () => {
                 this.battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
               });
-            },
-            SKIP_BATTLE_ANIMATIONS
+            }
           );
         });
       },
@@ -338,13 +345,6 @@ export class BattleScene extends Phaser.Scene {
     this.battleStateMachine.addState({
       name: BATTLE_STATES.BATTLE,
       onEnter: () => {
-        // general battle flow
-        // show attack used, brief pause
-        // then play attack animation, brief pause
-        // then play damage animation, brief pause
-        // then play health bar animation, brief pause
-        // then repeat the steps above for the other monster
-
         this.playerAttack();
       },
     });
@@ -370,8 +370,7 @@ export class BattleScene extends Phaser.Scene {
           ['You got away safely!'],
           () => {
             this.battleStateMachine.setState(BATTLE_STATES.FINISHED);
-          },
-          SKIP_BATTLE_ANIMATIONS
+          }
         );
       },
     });
