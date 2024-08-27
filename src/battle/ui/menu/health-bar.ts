@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 
 type SetMeterPercentageAnimatedOptions = {
   duration?: number;
+  skipBattleAnimations?: boolean;
   callback?: () => void;
 };
 
@@ -94,14 +95,25 @@ export class HealthBar {
 
   setMeterPercentageAnimated(
     percent: number = 1,
-    options: SetMeterPercentageAnimatedOptions = { duration: 1000 }
+    options: SetMeterPercentageAnimatedOptions = {
+      duration: 1000,
+      skipBattleAnimations: false,
+    }
   ): void {
     const width = this.fullWidth * percent;
+
+    if (options.skipBattleAnimations) {
+      this.setMeterPercentage(percent);
+      if (options?.callback) {
+        options.callback();
+      }
+      return;
+    }
 
     this.scene.tweens.add({
       targets: this.middle,
       displayWidth: width,
-      duration: options?.duration || 1000,
+      duration: options?.duration || options?.duration === 0 ? 0 : 1000,
       ease: Phaser.Math.Easing.Sine.Out,
       onUpdate: () => {
         this.rightCap.x = this.middle.x + this.middle.displayWidth;

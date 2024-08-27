@@ -23,6 +23,7 @@ export interface CharacterConfig {
   idleFrameConfig: IdleFrameConfig;
   otherCharactersToCheckForCollisionsWith?: Character[];
   spriteGridMovementFinishedCallback?: () => void;
+  spriteChangedDirectionCallback?: () => void;
 }
 
 export class Character {
@@ -34,9 +35,10 @@ export class Character {
   protected targetPosition: Coordinate;
   protected previousTargetPosition: Coordinate;
   protected _collisionLayer: Phaser.Tilemaps.TilemapLayer | undefined;
-  protected spriteGridMovementFinishedCallback: (() => void) | undefined;
   protected idleFrameConfig: IdleFrameConfig;
   protected otherCharactersToCheckForCollisionsWith: Character[];
+  protected spriteGridMovementFinishedCallback: (() => void) | undefined;
+  protected spriteChangedDirectionCallback: (() => void) | undefined;
 
   constructor(config: CharacterConfig) {
     const {
@@ -45,10 +47,11 @@ export class Character {
       origin,
       position,
       direction,
-      spriteGridMovementFinishedCallback,
       collisionLayer,
       idleFrameConfig,
       otherCharactersToCheckForCollisionsWith = [],
+      spriteGridMovementFinishedCallback,
+      spriteChangedDirectionCallback,
     } = config;
     this.scene = scene;
     this._direction = direction;
@@ -65,6 +68,7 @@ export class Character {
       .setOrigin(this._origin.x, this._origin.y);
     this.spriteGridMovementFinishedCallback =
       spriteGridMovementFinishedCallback;
+    this.spriteChangedDirectionCallback = spriteChangedDirectionCallback;
   }
 
   get sprite() {
@@ -120,7 +124,13 @@ export class Character {
   }
 
   protected moveSprite(direction: DIRECTION) {
+    const changeDirection = this.direction !== direction;
     this._direction = direction;
+
+    if (changeDirection) {
+      if (this.spriteChangedDirectionCallback !== undefined)
+        this.spriteChangedDirectionCallback();
+    }
     if (this.isBlockingTile()) return;
 
     this._isMoving = true;

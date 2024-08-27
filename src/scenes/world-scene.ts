@@ -130,6 +130,9 @@ export class WorldScene extends Phaser.Scene {
       spriteGridMovementFinishedCallback: () => {
         this.handlePlayerMovementUpdate();
       },
+      spriteChangedDirectionCallback: () => {
+        this.handlePlayerDirectionUpdate();
+      },
       otherCharactersToCheckForCollisionsWith: this.npcs,
     });
 
@@ -351,5 +354,13 @@ export class WorldScene extends Phaser.Scene {
 
       this.npcs.push(npc);
     });
+  }
+
+  handlePlayerDirectionUpdate() {
+    console.log('run');
+    dataManager.store.set(
+      DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
+      this.player.direction
+    );
   }
 }

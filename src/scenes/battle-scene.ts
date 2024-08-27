@@ -286,7 +286,6 @@ export class BattleScene extends Phaser.Scene {
       },
     });
 
-    // TODO: fix bug when space bar is pressed rapidly
     this.battleStateMachine.addState({
       name: BATTLE_STATES.PRE_BATTLE_INFO,
       onEnter: () => {
