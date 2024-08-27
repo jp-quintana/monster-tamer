@@ -106,10 +106,13 @@ export class BattleScene extends Phaser.Scene {
     this.attackManager = new AttackManager(this, this.skipAnimations);
 
     this.controls = new Controls(this);
+    this.controls.lockInput = true;
   }
 
   update() {
     this.battleStateMachine.update();
+
+    if (this.controls.isInputLocked) return;
 
     // true only once and then goes back to false
     const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
@@ -290,15 +293,12 @@ export class BattleScene extends Phaser.Scene {
         // wait for enemy monster to appear on screen and notify player about the wild monster
         this.activeEnemyMonster.playMonsterAppearAnimation(() => {
           this.activeEnemyMonster.playHealthBarAppearAnimation(() => undefined);
+          this.controls.lockInput = false;
           this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
             [`wild ${this.activeEnemyMonster.name} appeared!`],
             () => {
               // wait for text animation to complete and move to next state
-              this.time.delayedCall(500, () => {
-                this.battleStateMachine.setState(
-                  BATTLE_STATES.BRING_OUT_MONSTER
-                );
-              });
+              this.battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
             }
           );
         });

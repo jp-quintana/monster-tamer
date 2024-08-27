@@ -133,36 +133,36 @@ export class BattleMenu {
         this.updateInfoPaneWithMessage();
         return;
       }
-    } else {
-      if (input === 'CANCEL') {
-        this.switchToMainBattleMenu();
-        return;
-      }
+    }
 
-      if (input === 'OK') {
-        if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
-          this.handlePlayerChooseMainBattleOption();
+    if (input === 'CANCEL') {
+      this.switchToMainBattleMenu();
+      return;
+    }
 
-          return;
-        }
-        if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
-          this.handlePlayerChooseAttack();
-          return;
-        }
-        return;
-      }
-
+    if (input === 'OK') {
       if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
-        this.updatSelectedBattleMenuOptionFromInput(input);
-        this.moveMainBattleCursor();
-        return;
-      }
+        this.handlePlayerChooseMainBattleOption();
 
-      if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
-        this.updateSelectedMoveMenuOptionFromInput(input);
-        this.moveMoveSelectBattleMenuCursor();
         return;
       }
+      if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+        this.handlePlayerChooseAttack();
+        return;
+      }
+      return;
+    }
+
+    if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
+      this.updateSelectedBattleMenuOptionFromInput(input);
+      this.moveMainBattleCursor();
+      return;
+    }
+
+    if (this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+      this.updateSelectedMoveMenuOptionFromInput(input);
+      this.moveMoveSelectBattleMenuCursor();
+      return;
     }
   }
 
@@ -264,7 +264,6 @@ export class BattleMenu {
   private updateInfoPaneWithMessage() {
     this.waitingForPlayerInput = false;
     this.battleTextGameObjectLine1.setText('').setAlpha(1);
-
     this.hideInputCursor();
 
     // check if all messages have been displayed from the queue and call the callback
@@ -363,7 +362,7 @@ export class BattleMenu {
       .setStrokeStyle(8, 0x905ac2, 1);
   }
 
-  private updatSelectedBattleMenuOptionFromInput(direction: DIRECTION) {
+  private updateSelectedBattleMenuOptionFromInput(direction: DIRECTION) {
     if (this.selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FIGHT) {
       switch (direction) {
         case DIRECTION.RIGHT:
