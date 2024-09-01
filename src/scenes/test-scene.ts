@@ -4,6 +4,7 @@ import { IceShard } from '../battle/attacks/ice-shard.ts';
 import { Slash } from '../battle/attacks/slash.ts';
 import { MONSTER_ASSET_KEYS } from '../assets/asset-keys.ts';
 import { SCENE_KEYS } from '../scenes/scene-keys.ts';
+import { makeDraggable } from '../utils/draggable.ts';
 // import { makeDraggable } from '../utils/draggable.ts';
 
 export class TestScene extends Phaser.Scene {
