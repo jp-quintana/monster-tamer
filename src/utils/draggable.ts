@@ -1,21 +1,20 @@
-export function makeDraggable(gameObject, enableLogs = false) {
+export function makeDraggable(
+  gameObject: Phaser.GameObjects.Image,
+  enableLogs = false
+) {
   gameObject.setInteractive();
 
   /**
    * @param {string} message
    * @returns {void}
    */
-  function log(message) {
+  function log(message: string) {
     if (enableLogs) {
       console.debug(message);
     }
   }
 
-  /**
-   * @param {Phaser.Input.Pointer} pointer
-   * @returns {void}
-   */
-  function onDrag(pointer) {
+  function onDrag(pointer: Phaser.Input.Pointer) {
     log(`[makeDraggable:onDrag] invoked for game object: ${gameObject.name}`);
     gameObject.x = pointer.x;
     gameObject.y = pointer.y;
