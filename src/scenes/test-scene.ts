@@ -42,24 +42,24 @@ export class TestScene extends Phaser.Scene {
 
   private addDataGui() {}
 
-  private updateAttackGameObjectPosition(param: 'x' | 'y', value: number) {
-    if (param === 'x') {
-      if (this.selectedAttack === ATTACK_KEYS.SLASH) {
-        this.slashAttack.gameObject.setX(value);
-        return;
-      }
-      if (this.selectedAttack === ATTACK_KEYS.ICE_SHARD) {
-        this.iceShardAttack.gameObject.setX(value);
-        return;
-      }
-    }
-    if (this.selectedAttack === ATTACK_KEYS.SLASH) {
-      this.slashAttack.gameObject.setY(value);
-      return;
-    }
-    if (this.selectedAttack === ATTACK_KEYS.ICE_SHARD) {
-      this.iceShardAttack.gameObject.setY(value);
-      return;
-    }
-  }
+  // private updateAttackGameObjectPosition(param: 'x' | 'y', value: number) {
+  //   if (param === 'x') {
+  //     if (this.selectedAttack === ATTACK_KEYS.SLASH) {
+  //       this.slashAttack.gameObject.setX(value);
+  //       return;
+  //     }
+  //     if (this.selectedAttack === ATTACK_KEYS.ICE_SHARD) {
+  //       this.iceShardAttack.gameObject.setX(value);
+  //       return;
+  //     }
+  //   }
+  //   if (this.selectedAttack === ATTACK_KEYS.SLASH) {
+  //     this.slashAttack.gameObject.setY(value);
+  //     return;
+  //   }
+  //   if (this.selectedAttack === ATTACK_KEYS.ICE_SHARD) {
+  //     this.iceShardAttack.gameObject.setY(value);
+  //     return;
+  //   }
+  // }
 }
