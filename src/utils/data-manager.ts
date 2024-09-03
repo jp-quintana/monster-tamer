@@ -28,6 +28,7 @@ interface GlobalState {
     volume: VOLUME_OPTIONS;
     menuColor: COLOR_OPTIONS;
   };
+  gameStarted: boolean;
 }
 
 const initialState: GlobalState = {
@@ -46,6 +47,7 @@ const initialState: GlobalState = {
     volume: 4,
     menuColor: 0,
   },
+  gameStarted: false,
 };
 
 export const enum DATA_MANAGER_STORE_KEYS {
@@ -57,6 +59,7 @@ export const enum DATA_MANAGER_STORE_KEYS {
   OPTIONS_SOUND = 'OPTIONS_SOUND',
   OPTIONS_VOLUME = 'OPTIONS_VOLUME',
   OPTIONS_MENU_COLOR = 'OPTIONS_MENU_COLOR',
+  GAME_STARTED = 'GAME_STARTED',
 }
 
 class DataManager extends Phaser.Events.EventEmitter {
@@ -104,6 +107,18 @@ class DataManager extends Phaser.Events.EventEmitter {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
   }
 
+  startNewGame() {
+    // get existing data before reseting all of the data, so we can persist options data
+    const existingData = { ...this.dataManagerDataToGlobalStateObject() };
+    existingData.player.position = { ...initialState.player.position };
+    existingData.player.direction = initialState.player.direction;
+    existingData.gameStarted = initialState.gameStarted;
+
+    this.#store.reset();
+    this.updateDataManager(existingData);
+    this.saveData();
+  }
+
   getAnimatedTextSpeed() {
     const chosenTextSpeed: TEXT_SPEED_OPTIONS | undefined = this.store.get(
       DATA_MANAGER_STORE_KEYS.OPTIONS_TEXT_SPEED
@@ -136,6 +151,7 @@ class DataManager extends Phaser.Events.EventEmitter {
       [DATA_MANAGER_STORE_KEYS.OPTIONS_SOUND]: data.options.sound,
       [DATA_MANAGER_STORE_KEYS.OPTIONS_VOLUME]: data.options.volume,
       [DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR]: data.options.menuColor,
+      [DATA_MANAGER_STORE_KEYS.GAME_STARTED]: data.gameStarted,
     });
   }
 
@@ -160,6 +176,7 @@ class DataManager extends Phaser.Events.EventEmitter {
         volume: this.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_VOLUME),
         menuColor: this.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR),
       },
+      gameStarted: this.store.get(DATA_MANAGER_STORE_KEYS.GAME_STARTED),
     };
   }
 }

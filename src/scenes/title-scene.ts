@@ -2,6 +2,7 @@ import { TITLE_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { DIRECTION } from '../common/direction';
 import { Controls } from '../utils/controls';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { SCENE_KEYS } from './scene-keys';
@@ -48,7 +49,8 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
-    this.isContinueButtonEnabled = false;
+    this.isContinueButtonEnabled =
+      dataManager.store.get(DATA_MANAGER_STORE_KEYS.GAME_STARTED) || false;
     // create title scene background
     this.add
       .image(0, 0, TITLE_ASSET_KEYS.BACKGROUND)
@@ -122,19 +124,19 @@ export class TitleScene extends Phaser.Scene {
       targets: this.mainMenuCursorPhaserImageGameObject,
     });
 
-    // add in fade effects
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
-        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) {
-          this.scene.start(SCENE_KEYS.WORLD_SCENE);
-          return;
-        }
-
         if (this.selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS) {
           this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
           return;
         }
+
+        if (this.selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) {
+          dataManager.startNewGame();
+        }
+
+        this.scene.start(SCENE_KEYS.WORLD_SCENE);
       }
     );
 

@@ -154,6 +154,8 @@ export class WorldScene extends Phaser.Scene {
     this.menu = new Menu(this);
 
     this.cameras.main.fadeIn(1000, 0, 0, 0);
+
+    dataManager.store.set(DATA_MANAGER_STORE_KEYS.GAME_STARTED, true);
   }
 
   update(time: DOMHighResTimeStamp) {
@@ -415,7 +417,6 @@ export class WorldScene extends Phaser.Scene {
   }
 
   handlePlayerDirectionUpdate() {
-    console.log('run');
     dataManager.store.set(
       DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
       this.player.direction

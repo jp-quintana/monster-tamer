@@ -60,8 +60,6 @@ export class NineSlice {
       '__BASE'
     ];
 
-    console.log(baseFrame.width, baseFrame.height);
-
     texture.add(
       ASSET_CUT_FRAMES.TL,
       0,

@@ -1,7 +1,9 @@
 import { UI_ASSET_KEYS } from '../../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../../assets/font-keys';
 import { DIRECTION } from '../../common/direction';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../../utils/data-manager';
 import { exhaustiveGuard } from '../../utils/guard';
+import { MENU_COLOR } from './menu-config';
 
 const MENU_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = Object.freeze({
   fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
@@ -149,11 +151,22 @@ export class Menu {
 
   private createGraphics() {
     const g = this.scene.add.graphics();
-    g.fillStyle(0x32454c, 1);
+
+    const menuColor = this.getMenuColorsFromDataManager();
+
+    g.fillStyle(menuColor.main, 1);
     g.fillRect(1, 0, this.width - 1, this.height - 1);
-    g.lineStyle(8, 0x6d9aa8, 1);
+    g.lineStyle(8, menuColor.border, 1);
     g.strokeRect(0, 0, this.width, this.height);
     g.setAlpha(0.9);
     return g;
+  }
+
+  private getMenuColorsFromDataManager() {
+    const chosenMenuColor: number = dataManager.store.get(
+      DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR
+    );
+
+    return MENU_COLOR[chosenMenuColor];
   }
 }
