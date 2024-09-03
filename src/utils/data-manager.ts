@@ -8,10 +8,14 @@ import {
   VOLUME_OPTIONS,
 } from '../common/options';
 import { TEXT_SPEED, TILE_SIZE } from '../config';
+import { Monster } from '../types';
 import { exhaustiveGuard } from './guard';
 
 const LOCAL_STORAGE_KEY = 'MONSTER_TAMER_DATA';
 
+interface MonsterData {
+  inParty: Monster[];
+}
 interface GlobalState {
   player: {
     position: {
@@ -29,6 +33,7 @@ interface GlobalState {
     menuColor: COLOR_OPTIONS;
   };
   gameStarted: boolean;
+  monsters: MonsterData;
 }
 
 const initialState: GlobalState = {
@@ -48,6 +53,9 @@ const initialState: GlobalState = {
     menuColor: 0,
   },
   gameStarted: false,
+  monsters: {
+    inParty: [],
+  },
 };
 
 export const enum DATA_MANAGER_STORE_KEYS {
@@ -60,6 +68,7 @@ export const enum DATA_MANAGER_STORE_KEYS {
   OPTIONS_VOLUME = 'OPTIONS_VOLUME',
   OPTIONS_MENU_COLOR = 'OPTIONS_MENU_COLOR',
   GAME_STARTED = 'GAME_STARTED',
+  MONSTERS_IN_PARTY = 'MONSTERS_IN_PARTY',
 }
 
 class DataManager extends Phaser.Events.EventEmitter {
@@ -113,6 +122,7 @@ class DataManager extends Phaser.Events.EventEmitter {
     existingData.player.position = { ...initialState.player.position };
     existingData.player.direction = initialState.player.direction;
     existingData.gameStarted = initialState.gameStarted;
+    existingData.monsters = { ...initialState.monsters };
 
     this.#store.reset();
     this.updateDataManager(existingData);
@@ -152,6 +162,7 @@ class DataManager extends Phaser.Events.EventEmitter {
       [DATA_MANAGER_STORE_KEYS.OPTIONS_VOLUME]: data.options.volume,
       [DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR]: data.options.menuColor,
       [DATA_MANAGER_STORE_KEYS.GAME_STARTED]: data.gameStarted,
+      [DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY]: data.monsters.inParty,
     });
   }
 
@@ -177,6 +188,9 @@ class DataManager extends Phaser.Events.EventEmitter {
         menuColor: this.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR),
       },
       gameStarted: this.store.get(DATA_MANAGER_STORE_KEYS.GAME_STARTED),
+      monsters: {
+        inParty: [...this.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)],
+      },
     };
   }
 }
