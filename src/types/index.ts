@@ -8,9 +8,11 @@ export interface BattleMonsterConfig {
 }
 
 export interface Monster {
+  id: number;
+  monsterId: number;
   name: string;
   assetKey: string;
-  assetFrame: number; // 0
+  assetFrame: number;
   currentLevel: number;
   maxHp: number;
   currentHp: number;

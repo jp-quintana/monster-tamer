@@ -1,3 +1,4 @@
+import { MONSTER_ASSET_KEYS } from '../assets/asset-keys';
 import { DIRECTION } from '../common/direction';
 import {
   BATTLE_SCENE_OPTIONS,
@@ -54,7 +55,20 @@ const initialState: GlobalState = {
   },
   gameStarted: false,
   monsters: {
-    inParty: [],
+    inParty: [
+      {
+        id: 1,
+        monsterId: 1,
+        name: MONSTER_ASSET_KEYS.IGUANIGNITE,
+        assetKey: MONSTER_ASSET_KEYS.IGUANIGNITE,
+        assetFrame: 0,
+        currentLevel: 5,
+        currentHp: 25,
+        maxHp: 25,
+        attackIds: [2],
+        baseAttack: 10,
+      },
+    ],
   },
 };
 
