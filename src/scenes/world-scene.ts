@@ -12,7 +12,7 @@ import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
 import { NPC, NPC_MOVEMENT_PATTERN, NPCPath } from '../world/characters/npc';
 import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
-import { Menu } from '../world/menu/menu';
+import { Menu, MENU_OPTIONS } from '../world/menu/menu';
 import { SCENE_KEYS } from './scene-keys';
 
 interface TiledObjectProperty {
@@ -162,17 +162,21 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
-    const selectedDirection = this.controls.getDirectionKeyPressedDown();
+    const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
+
+    const selectedDirectionHeldDown =
+      this.controls.getDirectionKeyPressedDown();
+    const selectedDirectionJustPressed =
+      this.controls.getDirectionKeyJustPressed();
 
     if (
-      selectedDirection !== DIRECTION.NONE &&
-      !this.dialogUi.isVisible &&
-      !this.menu.isVisible
+      selectedDirectionHeldDown !== DIRECTION.NONE &&
+      !this.isPlayerInputLocked()
     ) {
-      this.player.moveCharacter(selectedDirection);
+      this.player.moveCharacter(selectedDirectionHeldDown);
     }
 
-    if (this.controls.wasSpaceKeyPressed() && !this.player.isMoving) {
+    if (wasSpaceKeyPressed && !this.player.isMoving && !this.menu.isVisible) {
       this.handlePlayerInteraction();
     }
 
@@ -187,6 +191,31 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (this.menu.isVisible) {
+      if (selectedDirectionJustPressed !== DIRECTION.NONE) {
+        this.menu.handlePlayerInput(selectedDirectionJustPressed);
+        return;
+      }
+
+      if (wasSpaceKeyPressed) {
+        this.menu.handlePlayerInput('OK');
+
+        switch (this.menu.selectedMenuOption) {
+          case MENU_OPTIONS.SAVE:
+            dataManager.saveData();
+            this.dialogUi.showDialogModal(['Game progress has been saved']);
+            this.menu.hide();
+            break;
+          case MENU_OPTIONS.EXIT:
+            this.menu.hide();
+            break;
+        }
+        return;
+      }
+
+      if (this.controls.wasEscKeyPressed()) {
+        this.menu.hide();
+        return;
+      }
     }
 
     this.player.update(time);
@@ -293,6 +322,14 @@ export class WorldScene extends Phaser.Scene {
         }
       );
     }
+  }
+
+  private isPlayerInputLocked() {
+    return (
+      this.dialogUi.isVisible ||
+      this.menu.isVisible ||
+      this.controls.isInputLocked
+    );
   }
 
   private createNPCs(map: Phaser.Tilemaps.Tilemap) {
