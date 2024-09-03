@@ -12,6 +12,7 @@ import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
 import { NPC, NPC_MOVEMENT_PATTERN, NPCPath } from '../world/characters/npc';
 import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
+import { Menu } from '../world/menu/menu';
 import { SCENE_KEYS } from './scene-keys';
 
 interface TiledObjectProperty {
@@ -41,6 +42,7 @@ export class WorldScene extends Phaser.Scene {
   private dialogUi: DialogUi;
   private npcs: NPC[];
   private npcPlayerIsInteractingWith: NPC | undefined;
+  private menu: Menu;
 
   constructor() {
     super({
@@ -149,6 +151,8 @@ export class WorldScene extends Phaser.Scene {
 
     this.dialogUi = new DialogUi(this, 1280);
 
+    this.menu = new Menu(this);
+
     this.cameras.main.fadeIn(1000, 0, 0, 0);
   }
 
@@ -160,12 +164,29 @@ export class WorldScene extends Phaser.Scene {
 
     const selectedDirection = this.controls.getDirectionKeyPressedDown();
 
-    if (selectedDirection !== DIRECTION.NONE && !this.dialogUi.isVisible) {
+    if (
+      selectedDirection !== DIRECTION.NONE &&
+      !this.dialogUi.isVisible &&
+      !this.menu.isVisible
+    ) {
       this.player.moveCharacter(selectedDirection);
     }
 
     if (this.controls.wasSpaceKeyPressed() && !this.player.isMoving) {
       this.handlePlayerInteraction();
+    }
+
+    if (this.controls.wasEscKeyPressed()) {
+      if (this.dialogUi.isVisible) return;
+      if (this.menu.isVisible) {
+        this.menu.hide();
+        return;
+      }
+      this.menu.show();
+      return;
+    }
+
+    if (this.menu.isVisible) {
     }
 
     this.player.update(time);
