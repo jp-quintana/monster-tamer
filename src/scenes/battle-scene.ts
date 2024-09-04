@@ -9,10 +9,10 @@ import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
 import { BATTLE_SCENE_OPTIONS } from '../common/options.ts';
-import { Controls } from '../utils/controls.ts';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
+import { BaseScene } from './base-scene.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
 const enum BATTLE_STATES {
@@ -27,9 +27,8 @@ const enum BATTLE_STATES {
   FLEE_ATEMPT = 'FLEE_ATEMPT',
 }
 
-export class BattleScene extends Phaser.Scene {
+export class BattleScene extends BaseScene {
   private battleMenu: BattleMenu;
-  private controls: Controls;
   private activeEnemyMonster: EnemyBattleMonster;
   private activePlayerMonster: PlayerBattleMonster;
   private activePlayerAttackIndex: number;
@@ -44,6 +43,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   init() {
+    super.init();
     this.activePlayerAttackIndex = -1;
     const chosenBattleSceneOption = dataManager.store.get(
       DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS
@@ -61,6 +61,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     const background = new Background(this);
     background.showForest();
 
@@ -100,11 +101,11 @@ export class BattleScene extends Phaser.Scene {
 
     this.attackManager = new AttackManager(this, this.skipAnimations);
 
-    this.controls = new Controls(this);
     this.controls.lockInput = true;
   }
 
-  update() {
+  update(time: DOMHighResTimeStamp) {
+    super.update(time);
     this.battleStateMachine.update();
 
     if (this.controls.isInputLocked) return;

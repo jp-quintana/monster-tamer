@@ -5,7 +5,6 @@ import {
   TILED_COLLISION_LAYER_ALPHA,
   TILED_ENCOUNTER_LAYER_ALPHA,
 } from '../config';
-import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
@@ -13,6 +12,7 @@ import { NPC, NPC_MOVEMENT_PATTERN, NPCPath } from '../world/characters/npc';
 import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
 import { Menu, MENU_OPTIONS } from '../world/menu/menu';
+import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
 
 interface TiledObjectProperty {
@@ -33,9 +33,8 @@ const enum TILED_NPC_PROPERTY {
   FRAME = 'frame',
 }
 
-export class WorldScene extends Phaser.Scene {
+export class WorldScene extends BaseScene {
   private player: Player;
-  private controls: Controls;
   private signLayer: Phaser.Tilemaps.ObjectLayer | null;
   private encounterLayer: Phaser.Tilemaps.TilemapLayer | null;
   private wildMonsterEncountered: boolean;
@@ -51,11 +50,13 @@ export class WorldScene extends Phaser.Scene {
   }
 
   init() {
+    super.init();
     this.wildMonsterEncountered = false;
     this.npcPlayerIsInteractingWith = undefined;
   }
 
   create() {
+    super.create();
     this.cameras.main.setBounds(0, 0, 1280, 2176);
     this.cameras.main.setZoom(0.8);
 
@@ -147,8 +148,6 @@ export class WorldScene extends Phaser.Scene {
 
     this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_FOREGROUND, 0).setOrigin(0);
 
-    this.controls = new Controls(this);
-
     this.dialogUi = new DialogUi(this, 1280);
 
     this.menu = new Menu(this);
@@ -159,6 +158,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update(time: DOMHighResTimeStamp) {
+    super.update(time);
     if (this.wildMonsterEncountered) {
       this.player.update(time);
       return;

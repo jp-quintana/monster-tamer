@@ -1,10 +1,10 @@
 import { TITLE_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { DIRECTION } from '../common/direction';
-import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
+import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
 
 const MENU_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = Object.freeze({
@@ -23,9 +23,8 @@ const enum MAIN_MENU_OPTIONS {
   CONTINUE = 'CONTINUE',
   OPTIONS = 'OPTIONS',
 }
-export class TitleScene extends Phaser.Scene {
+export class TitleScene extends BaseScene {
   private mainMenuCursorPhaserImageGameObject: Phaser.GameObjects.Image;
-  private controls: Controls;
   private selectedMenuOption: MAIN_MENU_OPTIONS;
   private newGameText: Phaser.GameObjects.Text;
   private continueText: Phaser.GameObjects.Text;
@@ -40,6 +39,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   init() {
+    super.init();
     this.nineSliceMenu = new NineSlice({
       cornerCutSize: 32,
       textureManager: this.sys.textures,
@@ -48,6 +48,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     this.selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
     this.isContinueButtonEnabled =
       dataManager.store.get(DATA_MANAGER_STORE_KEYS.GAME_STARTED) || false;
@@ -139,11 +140,10 @@ export class TitleScene extends Phaser.Scene {
         this.scene.start(SCENE_KEYS.WORLD_SCENE);
       }
     );
-
-    this.controls = new Controls(this);
   }
 
-  update() {
+  update(time: DOMHighResTimeStamp) {
+    super.update(time);
     if (this.controls.isInputLocked) return;
 
     const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();

@@ -6,6 +6,7 @@ import {
   DATA_ASSET_KEYS,
   HEALTH_BAR_ASSET_KEYS,
   MONSTER_ASSET_KEYS,
+  MONSTER_PARTY_ASSET_KEYS,
   TITLE_ASSET_KEYS,
   UI_ASSET_KEYS,
   WORLD_ASSET_KEYS,
@@ -14,9 +15,10 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys.ts';
 import { WebFontFileLoader } from '../assets/web-font-file-loader.ts';
 import { dataManager } from '../utils/data-manager.ts';
 import { DataUtils } from '../utils/data-utils.ts';
+import { BaseScene } from './base-scene.ts';
 import { SCENE_KEYS } from './scene-keys.ts';
 
-export class PreloadScene extends Phaser.Scene {
+export class PreloadScene extends BaseScene {
   constructor() {
     super({
       key: SCENE_KEYS.PRELOAD_SCENE,
@@ -25,6 +27,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    super.preload();
     const monsterTamerAssetPath = 'assets/images/monster-tamer';
     const kenneysTamerAssetPath = 'assets/images/kenneys-assets';
     const pimenAssetPath = 'assets/images/pimen';
@@ -103,6 +106,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(
       UI_ASSET_KEYS.MENU_BACKGROUND_PURPLE,
       kenneysTamerAssetPath + '/ui-space-expansion/glassPanel_purple.png'
+    );
+    this.load.image(
+      UI_ASSET_KEYS.BLUE_BUTTON,
+      kenneysTamerAssetPath + '/ui-pack/blue_button01.png'
+    );
+    this.load.image(
+      UI_ASSET_KEYS.BLUE_BUTTON_SELECTED,
+      kenneysTamerAssetPath + '/ui-pack/blue_button00.png'
     );
 
     // load json data
@@ -194,12 +205,23 @@ export class PreloadScene extends Phaser.Scene {
       TITLE_ASSET_KEYS.TITLE,
       `${monsterTamerAssetPath}/ui/title/title_text.png`
     );
+
+    // ui components for monster party
+    this.load.image(
+      MONSTER_PARTY_ASSET_KEYS.PARTY_BACKGROUND,
+      `${monsterTamerAssetPath}/monster-party/background.png`
+    );
+    this.load.image(
+      MONSTER_PARTY_ASSET_KEYS.MONSTER_DETAILS_BACKGROUND,
+      `${monsterTamerAssetPath}/monster-party/monster-details-background.png`
+    );
   }
 
   create() {
+    super.create();
     this.createAnimations();
     dataManager.loadData();
-    this.scene.start(SCENE_KEYS.TITLE_SCENE);
+    this.scene.start(SCENE_KEYS.MONSTER_PARTY_SCENE);
   }
 
   private createAnimations() {

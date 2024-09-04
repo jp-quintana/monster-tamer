@@ -10,10 +10,10 @@ import {
   TEXT_SPEED_OPTIONS,
   VOLUME_OPTIONS,
 } from '../common/options';
-import { Controls } from '../utils/controls';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
+import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
 
 const OPTIONS_TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle =
@@ -38,7 +38,7 @@ const enum TEXT_FONT_COLORS {
   SELECTED = '#FF2222',
 }
 
-export class OptionsScene extends Phaser.Scene {
+export class OptionsScene extends BaseScene {
   private mainContainer: Phaser.GameObjects.Container;
   private nineSliceMainContainer: NineSlice;
   private textSpeedOptionTextGameObjects: Phaser.GameObjects.Group;
@@ -53,7 +53,6 @@ export class OptionsScene extends Phaser.Scene {
   private infoContainer: Phaser.GameObjects.Container;
   private selectedOptionInfoMessageTextGameObject: Phaser.GameObjects.Text;
   private optionsMenuCursor: Phaser.GameObjects.Rectangle;
-  private controls: Controls;
   private selectedOptionMenu: OPTION_MENU_OPTIONS;
   private selectedTextSpeedOption: TEXT_SPEED_OPTIONS;
   private selectedBattleSceneOption: BATTLE_SCENE_OPTIONS;
@@ -67,6 +66,7 @@ export class OptionsScene extends Phaser.Scene {
   }
 
   init() {
+    super.init();
     this.nineSliceMainContainer = new NineSlice({
       cornerCutSize: 32,
       textureManager: this.sys.textures,
@@ -100,6 +100,7 @@ export class OptionsScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     const { width, height } = this.scale;
 
     // main options container
@@ -215,7 +216,6 @@ export class OptionsScene extends Phaser.Scene {
     this.updateSoundOptionGameObjects();
     this.updateVolumeOptionSlider();
     this.updateMenuColorDisplayText();
-    this.controls = new Controls(this);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -225,7 +225,8 @@ export class OptionsScene extends Phaser.Scene {
     );
   }
 
-  update() {
+  update(time: DOMHighResTimeStamp) {
+    super.update(time);
     if (this.controls.isInputLocked) return;
 
     if (this.controls.wasEscKeyPressed()) {
