@@ -137,8 +137,8 @@ export class MonsterPartyScene extends BaseScene {
         return;
       }
 
-      // this.controls.lockInput = true;
-      // this.scene.start(SCENE_KEYS.WORLD_SCENE);
+      this.controls.lockInput = true;
+      this.scene.start(SCENE_KEYS.MONSTER_DETAILS_SCENE);
       return;
     }
 
