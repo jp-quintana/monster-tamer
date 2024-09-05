@@ -6,8 +6,10 @@ import {
 } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { HealthBar } from '../battle/ui/menu/health-bar';
+import { DIRECTION } from '../common/direction';
 import { Monster } from '../types';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
+import { exhaustiveGuard } from '../utils/guard';
 import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
 
@@ -115,37 +117,37 @@ export class MonsterPartyScene extends BaseScene {
 
       this.createMonster(x, y, monster);
     });
+    this.movePlayerInputCursor(DIRECTION.NONE);
+  }
 
-    // this.createMonster(
-    //   0,
-    //   10,
-    //   dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0]
-    // );
-    // this.add
-    //   .image(510, 40, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
-    //   .setOrigin(0)
-    //   .setScale(1.1, 1.2)
-    //   .setAlpha(0.7);
-    // this.add
-    //   .image(0, 160, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
-    //   .setOrigin(0)
-    //   .setScale(1.1, 1.2)
-    //   .setAlpha(0.7);
-    // this.add
-    //   .image(510, 190, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
-    //   .setOrigin(0)
-    //   .setScale(1.1, 1.2)
-    //   .setAlpha(0.7);
-    // this.add
-    //   .image(0, 310, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
-    //   .setOrigin(0)
-    //   .setScale(1.1, 1.2)
-    //   .setAlpha(0.7);
-    // this.add
-    //   .image(510, 340, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND)
-    //   .setOrigin(0)
-    //   .setScale(1.1, 1.2)
-    //   .setAlpha(0.35);
+  update(time: DOMHighResTimeStamp) {
+    super.update(time);
+
+    if (this.controls.isInputLocked) return;
+
+    if (this.controls.wasEscKeyPressed()) {
+      this.goBackToPreviousScene();
+      return;
+    }
+
+    const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
+    if (wasSpaceKeyPressed) {
+      if (this.selectedPartyMonsterIndex === -1) {
+        this.goBackToPreviousScene();
+        return;
+      }
+
+      // this.controls.lockInput = true;
+      // this.scene.start(SCENE_KEYS.WORLD_SCENE);
+      return;
+    }
+
+    const selectedDirection = this.controls.getDirectionKeyJustPressed();
+
+    if (selectedDirection !== DIRECTION.NONE) {
+      this.movePlayerInputCursor(selectedDirection);
+      this.updateInfoContainerText();
+    }
   }
 
   private updateInfoContainerText() {
@@ -165,6 +167,7 @@ export class MonsterPartyScene extends BaseScene {
       .setScale(1.1, 1.2)
       .setAlpha(0.7);
 
+    this.monsterPartyBackgrounds.push(background);
     const leftShadowCap = this.add
       .image(160, 67, HEALTH_BAR_ASSET_KEYS.LEFT_CAP_SHADOW)
       .setOrigin(0)
@@ -254,5 +257,60 @@ export class MonsterPartyScene extends BaseScene {
     ]);
 
     return container;
+  }
+
+  private goBackToPreviousScene() {
+    this.controls.lockInput = true;
+    this.scene.start(SCENE_KEYS.WORLD_SCENE);
+  }
+
+  private movePlayerInputCursor(selectedDirection: DIRECTION) {
+    switch (selectedDirection) {
+      case DIRECTION.UP:
+      case DIRECTION.LEFT:
+        if (this.selectedPartyMonsterIndex === -1) {
+          this.selectedPartyMonsterIndex = this.monsters.length - 1;
+        } else {
+          this.monsterPartyBackgrounds[this.selectedPartyMonsterIndex].setAlpha(
+            0.7
+          );
+          this.selectedPartyMonsterIndex--;
+        }
+
+        break;
+      case DIRECTION.DOWN:
+      case DIRECTION.RIGHT:
+        if (this.selectedPartyMonsterIndex === this.monsters.length - 1) {
+          // deselect current monster
+          this.monsterPartyBackgrounds[this.selectedPartyMonsterIndex].setAlpha(
+            0.7
+          );
+          this.selectedPartyMonsterIndex = -1;
+        } else {
+          // if monster is selected, deselect
+          if (this.selectedPartyMonsterIndex >= 0) {
+            this.monsterPartyBackgrounds[
+              this.selectedPartyMonsterIndex
+            ].setAlpha(0.7);
+          }
+
+          this.selectedPartyMonsterIndex++;
+        }
+        break;
+      case DIRECTION.NONE:
+        break;
+      default:
+        exhaustiveGuard(selectedDirection);
+        break;
+    }
+
+    if (this.selectedPartyMonsterIndex === -1) {
+      this.cancelButton
+        .setTexture(UI_ASSET_KEYS.BLUE_BUTTON_SELECTED, 0)
+        .setAlpha(1);
+    } else {
+      this.monsterPartyBackgrounds[this.selectedPartyMonsterIndex].setAlpha(1);
+      this.cancelButton.setTexture(UI_ASSET_KEYS.BLUE_BUTTON, 0).setAlpha(0.7);
+    }
   }
 }
