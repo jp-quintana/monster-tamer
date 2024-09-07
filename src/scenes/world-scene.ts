@@ -152,6 +152,8 @@ export class WorldScene extends BaseScene {
 
     this.menu = new Menu(this);
 
+    this.events.on(Phaser.Scenes.Events.RESUME, this.handleResume, this);
+
     this.cameras.main.fadeIn(1000, 0, 0, 0);
 
     dataManager.store.set(DATA_MANAGER_STORE_KEYS.GAME_STARTED, true);
@@ -202,6 +204,13 @@ export class WorldScene extends BaseScene {
         this.menu.handlePlayerInput('OK');
 
         switch (this.menu.selectedMenuOption) {
+          case MENU_OPTIONS.MONSTERS:
+            const sceneDataToPass = {
+              previousSceneName: SCENE_KEYS.WORLD_SCENE,
+            };
+            this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
+            this.scene.pause();
+            break;
           case MENU_OPTIONS.SAVE:
             dataManager.saveData();
             this.dialogUi.showDialogModal(['Game progress has been saved']);
@@ -416,10 +425,14 @@ export class WorldScene extends BaseScene {
     });
   }
 
-  handlePlayerDirectionUpdate() {
+  private handlePlayerDirectionUpdate() {
     dataManager.store.set(
       DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
       this.player.direction
     );
+  }
+
+  private handleResume(sys: Phaser.Scene, data: any) {
+    console.log(`[${WorldScene.name}:handleResume] has been resumed`);
   }
 }
