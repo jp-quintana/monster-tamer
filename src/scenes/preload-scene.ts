@@ -5,6 +5,7 @@ import {
   CHARACTER_ASSET_KEYS,
   DATA_ASSET_KEYS,
   HEALTH_BAR_ASSET_KEYS,
+  INVENTORY_ASSET_KEYS,
   MONSTER_ASSET_KEYS,
   MONSTER_PARTY_ASSET_KEYS,
   TITLE_ASSET_KEYS,
@@ -215,13 +216,23 @@ export class PreloadScene extends BaseScene {
       MONSTER_PARTY_ASSET_KEYS.MONSTER_DETAILS_BACKGROUND,
       `${monsterTamerAssetPath}/monster-party/monster-details-background.png`
     );
+
+    // ui components for inventory
+    this.load.image(
+      INVENTORY_ASSET_KEYS.INVENTORY_BACKGROUND,
+      `${monsterTamerAssetPath}/inventory/bag_background.png`
+    );
+    this.load.image(
+      INVENTORY_ASSET_KEYS.INVENTORY_BAG,
+      `${monsterTamerAssetPath}/inventory/bag.png`
+    );
   }
 
   create() {
     super.create();
     this.createAnimations();
     dataManager.loadData();
-    this.scene.start(SCENE_KEYS.WORLD_SCENE);
+    this.scene.start(SCENE_KEYS.INVENTORY_SCENE);
   }
 
   private createAnimations() {

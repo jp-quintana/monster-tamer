@@ -8,6 +8,7 @@ import { OptionsScene } from './scenes/options-scene';
 import { TestScene } from './scenes/test-scene';
 import { MonsterPartyScene } from './scenes/monster-party-scene';
 import { MonsterDetailsScene } from './scenes/monster-details-scene';
+import { InventoryScene } from './scenes/inventory-scene';
 
 const config: Types.Core.GameConfig = {
   type: Phaser.CANVAS,
@@ -33,4 +34,5 @@ game.scene.add(SCENE_KEYS.OPTIONS_SCENE, OptionsScene);
 game.scene.add(SCENE_KEYS.TEST_SCENE, TestScene);
 game.scene.add(SCENE_KEYS.MONSTER_PARTY_SCENE, MonsterPartyScene);
 game.scene.add(SCENE_KEYS.MONSTER_DETAILS_SCENE, MonsterDetailsScene);
+game.scene.add(SCENE_KEYS.INVENTORY_SCENE, InventoryScene);
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
