@@ -152,8 +152,6 @@ export class WorldScene extends BaseScene {
 
     this.menu = new Menu(this);
 
-    this.events.on(Phaser.Scenes.Events.RESUME, this.handleResume, this);
-
     this.cameras.main.fadeIn(1000, 0, 0, 0);
 
     dataManager.store.set(DATA_MANAGER_STORE_KEYS.GAME_STARTED, true);
@@ -430,9 +428,5 @@ export class WorldScene extends BaseScene {
       DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
       this.player.direction
     );
-  }
-
-  private handleResume(sys: Phaser.Scene, data: any) {
-    console.log(`[${WorldScene.name}:handleResume] has been resumed`);
   }
 }

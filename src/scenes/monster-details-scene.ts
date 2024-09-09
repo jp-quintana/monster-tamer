@@ -21,18 +21,24 @@ const MONSTER_MOVE_TEXT_STYLE = Object.freeze({
 export class MonsterDetailsScene extends BaseScene {
   private monsterDetails: Monster;
   private monsterAttacks: Attack[];
+
   constructor() {
     super({
       key: SCENE_KEYS.MONSTER_DETAILS_SCENE,
     });
   }
 
-  init() {
-    super.init();
+  init(data: any) {
+    super.init(data);
 
-    this.monsterDetails = dataManager.store.get(
-      DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY
-    )[0];
+    this.monsterDetails = data.monster;
+
+    if (this.monsterDetails === undefined) {
+      this.monsterDetails = dataManager.store.get(
+        DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY
+      )[0];
+    }
+
     this.monsterAttacks = [];
 
     this.monsterDetails.attackIds.forEach((attackId) => {
@@ -93,6 +99,11 @@ export class MonsterDetailsScene extends BaseScene {
 
   private goBackToPreviousScene() {
     this.controls.lockInput = true;
+    this.scene.stop(SCENE_KEYS.MONSTER_DETAILS_SCENE);
+    if (this.scene.isPaused(SCENE_KEYS.MONSTER_PARTY_SCENE)) {
+      this.scene.resume(SCENE_KEYS.MONSTER_PARTY_SCENE);
+      return;
+    }
     this.scene.start(SCENE_KEYS.MONSTER_PARTY_SCENE);
   }
 }

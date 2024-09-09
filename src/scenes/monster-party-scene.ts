@@ -39,7 +39,7 @@ export class MonsterPartyScene extends BaseScene {
   private healthBarTextGameObjects: Phaser.GameObjects.Text[];
   private selectedPartyMonsterIndex: number;
   private monsters: Monster[];
-  private previousSceneName: SCENE_KEYS;
+  private sceneData: { previousSceneName: SCENE_KEYS };
 
   constructor() {
     super({ key: SCENE_KEYS.MONSTER_PARTY_SCENE });
@@ -48,7 +48,7 @@ export class MonsterPartyScene extends BaseScene {
   init(data: any) {
     super.init(data);
 
-    this.previousSceneName = data.previousSceneName;
+    this.sceneData = data;
 
     this.monsterPartyBackgrounds = [];
     this.healthBars = [];
@@ -144,7 +144,11 @@ export class MonsterPartyScene extends BaseScene {
       }
 
       this.controls.lockInput = true;
-      this.scene.start(SCENE_KEYS.MONSTER_DETAILS_SCENE);
+      const sceneDataToPass = {
+        monster: this.monsters[this.selectedPartyMonsterIndex],
+      };
+      this.scene.launch(SCENE_KEYS.MONSTER_DETAILS_SCENE, sceneDataToPass);
+      this.scene.pause(SCENE_KEYS.MONSTER_PARTY_SCENE);
       return;
     }
 
@@ -268,9 +272,8 @@ export class MonsterPartyScene extends BaseScene {
   private goBackToPreviousScene() {
     this.controls.lockInput = true;
 
-    const sceneDataToPass = { previousSceneName: SCENE_KEYS.WORLD_SCENE };
     this.scene.stop(SCENE_KEYS.MONSTER_PARTY_SCENE);
-    this.scene.resume(this.previousSceneName, sceneDataToPass);
+    this.scene.resume(this.sceneData.previousSceneName);
   }
 
   private movePlayerInputCursor(selectedDirection: DIRECTION) {
