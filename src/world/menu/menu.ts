@@ -39,6 +39,7 @@ export class Menu {
 
     this.availableMenuOptions = [
       MENU_OPTIONS.MONSTERS,
+      MENU_OPTIONS.BAG,
       MENU_OPTIONS.SAVE,
       MENU_OPTIONS.EXIT,
     ];
@@ -143,7 +144,6 @@ export class Menu {
         exhaustiveGuard(direction);
     }
 
-    // const x = 20 + this.padding
     const y = 28 + this.padding + this.selectedMenuOptionsIndex * 50;
     this.userInputCursor.setY(y);
   }

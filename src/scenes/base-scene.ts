@@ -41,6 +41,8 @@ export abstract class BaseScene extends Phaser.Scene {
       this.handleSceneCleanup,
       this
     );
+
+    this.scene.bringToTop();
   }
 
   update(time: DOMHighResTimeStamp) {}

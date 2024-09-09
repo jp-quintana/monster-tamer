@@ -202,13 +202,22 @@ export class WorldScene extends BaseScene {
         this.menu.handlePlayerInput('OK');
 
         switch (this.menu.selectedMenuOption) {
-          case MENU_OPTIONS.MONSTERS:
+          case MENU_OPTIONS.MONSTERS: {
             const sceneDataToPass = {
               previousSceneName: SCENE_KEYS.WORLD_SCENE,
             };
             this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
-            this.scene.pause();
+            this.scene.pause(SCENE_KEYS.WORLD_SCENE);
             break;
+          }
+          case MENU_OPTIONS.BAG: {
+            const sceneDataToPass = {
+              previousSceneName: SCENE_KEYS.WORLD_SCENE,
+            };
+            this.scene.launch(SCENE_KEYS.INVENTORY_SCENE, sceneDataToPass);
+            this.scene.pause(SCENE_KEYS.WORLD_SCENE);
+            break;
+          }
           case MENU_OPTIONS.SAVE:
             dataManager.saveData();
             this.dialogUi.showDialogModal(['Game progress has been saved']);

@@ -1,5 +1,7 @@
 import { INVENTORY_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
+import { DIRECTION } from '../common/direction';
+import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
@@ -164,6 +166,42 @@ export class InventoryScene extends BaseScene {
     this.updateItemDescriptionText();
   }
 
+  update(time: DOMHighResTimeStamp) {
+    super.update(time);
+
+    if (this.controls.isInputLocked) return;
+
+    if (this.controls.wasEscKeyPressed()) {
+      this.goBackToPreviousScene();
+      return;
+    }
+
+    const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
+    if (wasSpaceKeyPressed) {
+      if (this.isCancelButtonSelected()) {
+        this.goBackToPreviousScene();
+        return;
+      }
+
+      this.controls.lockInput = true;
+      const sceneDataToPass = {
+        previousSceneName: SCENE_KEYS.INVENTORY_SCENE,
+      };
+
+      this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
+      this.scene.pause(SCENE_KEYS.INVENTORY_SCENE);
+      return;
+    }
+
+    const selectedDirection = this.controls.getDirectionKeyJustPressed();
+
+    if (selectedDirection !== DIRECTION.NONE) {
+      this.movePlayerInputCursor(selectedDirection);
+      console.log(this.selectedInventoryOptionIndex);
+      this.updateItemDescriptionText();
+    }
+  }
+
   private updateItemDescriptionText() {
     if (this.isCancelButtonSelected()) {
       this.selectedInventoryDescriptionText.setText(CANCEL_TEXT_DESCRIPTION);
@@ -177,5 +215,40 @@ export class InventoryScene extends BaseScene {
 
   private isCancelButtonSelected() {
     return this.selectedInventoryOptionIndex === this.inventory.length;
+  }
+
+  private goBackToPreviousScene() {
+    this.controls.lockInput = true;
+
+    this.scene.stop(SCENE_KEYS.INVENTORY_SCENE);
+    this.scene.resume(this.sceneData.previousSceneName);
+  }
+
+  private movePlayerInputCursor(direction: DIRECTION) {
+    switch (direction) {
+      case DIRECTION.UP:
+        this.selectedInventoryOptionIndex -= 1;
+        if (this.selectedInventoryOptionIndex < 0) {
+          this.selectedInventoryOptionIndex = this.inventory.length;
+        }
+        break;
+      case DIRECTION.DOWN:
+        this.selectedInventoryOptionIndex += 1;
+        if (this.selectedInventoryOptionIndex > this.inventory.length) {
+          this.selectedInventoryOptionIndex = 0;
+        }
+        break;
+      case DIRECTION.LEFT:
+      case DIRECTION.RIGHT:
+        return;
+      case DIRECTION.NONE:
+        break;
+      default:
+        exhaustiveGuard(direction);
+    }
+
+    const y = 30 + this.selectedInventoryOptionIndex * 50;
+
+    this.userInputCursor.setY(y);
   }
 }
