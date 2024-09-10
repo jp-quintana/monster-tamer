@@ -130,6 +130,7 @@ export class Character {
     if (changeDirection) {
       if (this.spriteChangedDirectionCallback !== undefined)
         this.spriteChangedDirectionCallback();
+      return;
     }
     if (this.isBlockingTile()) return;
 

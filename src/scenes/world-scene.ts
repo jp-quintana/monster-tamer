@@ -42,6 +42,7 @@ export class WorldScene extends BaseScene {
   private npcs: NPC[];
   private npcPlayerIsInteractingWith: NPC | undefined;
   private menu: Menu;
+  private isPlayerStationary: boolean;
 
   constructor() {
     super({
@@ -53,6 +54,7 @@ export class WorldScene extends BaseScene {
     super.init();
     this.wildMonsterEncountered = false;
     this.npcPlayerIsInteractingWith = undefined;
+    this.isPlayerStationary = true;
   }
 
   create() {
@@ -176,6 +178,9 @@ export class WorldScene extends BaseScene {
       !this.isPlayerInputLocked()
     ) {
       this.player.moveCharacter(selectedDirectionHeldDown);
+      this.isPlayerStationary = false;
+    } else {
+      this.isPlayerStationary = true;
     }
 
     if (wasSpaceKeyPressed && !this.player.isMoving && !this.menu.isVisible) {
@@ -437,5 +442,12 @@ export class WorldScene extends BaseScene {
       DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,
       this.player.direction
     );
+
+    if (this.isPlayerStationary) {
+      this.controls.lockInput = true;
+      setTimeout(() => {
+        this.controls.lockInput = false;
+      }, 100);
+    }
   }
 }
