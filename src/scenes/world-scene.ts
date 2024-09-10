@@ -445,9 +445,10 @@ export class WorldScene extends BaseScene {
 
     if (this.isPlayerStationary) {
       this.controls.lockInput = true;
-      setTimeout(() => {
+
+      this.time.delayedCall(100, () => {
         this.controls.lockInput = false;
-      }, 100);
+      });
     }
   }
 }
