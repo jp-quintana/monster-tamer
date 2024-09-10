@@ -183,7 +183,7 @@ export class WorldScene extends BaseScene {
     }
 
     if (this.controls.wasEscKeyPressed()) {
-      if (this.dialogUi.isVisible) return;
+      if (this.dialogUi.isVisible || this.player.isMoving) return;
       if (this.menu.isVisible) {
         this.menu.hide();
         return;
