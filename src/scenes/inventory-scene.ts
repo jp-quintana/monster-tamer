@@ -1,15 +1,14 @@
 import { INVENTORY_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { DIRECTION } from '../common/direction';
+import { InventoryItem } from '../types';
+import { dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { BaseScene } from './base-scene';
 import { SCENE_KEYS } from './scene-keys';
 
-export interface InventoryItem {
-  name: string;
-  description: string;
-  quantity: number;
+export interface InventoryItemWithGameObjects extends InventoryItem {
   gameObjects: {
     itemName?: Phaser.GameObjects.Text;
     quantity?: Phaser.GameObjects.Text;
@@ -36,7 +35,7 @@ export class InventoryScene extends BaseScene {
   private nineSliceMainContainer: NineSlice;
   private selectedInventoryDescriptionText: Phaser.GameObjects.Text;
   private userInputCursor: Phaser.GameObjects.Image;
-  private inventory: InventoryItem[];
+  private inventory: InventoryItemWithGameObjects[];
   private selectedInventoryOptionIndex: number;
 
   constructor() {
@@ -53,15 +52,15 @@ export class InventoryScene extends BaseScene {
       assetKeys: [UI_ASSET_KEYS.MENU_BACKGROUND],
     });
 
-    this.inventory = [
-      {
-        name: 'potion',
-        description:
-          'A basic healing item that will heal 30 HP from a single monster',
-        quantity: 10,
+    const inventory = dataManager.getInventory(this);
+
+    this.inventory = inventory.map((inventoryItem) => {
+      return {
+        item: inventoryItem.item,
+        quantity: inventoryItem.quantity,
         gameObjects: {},
-      },
-    ];
+      };
+    });
 
     this.selectedInventoryOptionIndex = 0;
   }
@@ -102,11 +101,11 @@ export class InventoryScene extends BaseScene {
     titleContainer.add(textTitle);
 
     // create inventory text from available items
-    this.inventory.forEach((item, i) => {
+    this.inventory.forEach((inventoryItem, i) => {
       const itemText = this.add.text(
         INVENTORY_ITEM_POSITION.x,
         INVENTORY_ITEM_POSITION.y + i * INVENTORY_ITEM_POSITION.space,
-        item.name,
+        inventoryItem.item.name,
         INVENTORY_TEXT_STYLE
       );
       titleContainer.add(textTitle);
@@ -124,11 +123,11 @@ export class InventoryScene extends BaseScene {
       const qty2Text = this.add.text(
         650,
         INVENTORY_ITEM_POSITION.y + i * INVENTORY_ITEM_POSITION.space,
-        `${item.quantity}`,
+        `${inventoryItem.quantity}`,
         INVENTORY_TEXT_STYLE
       );
       container.add([itemText, qty1Text, qty2Text]);
-      item.gameObjects = {
+      inventoryItem.gameObjects = {
         itemName: itemText,
         quantity: qty2Text,
         quantitySign: qty1Text,
@@ -197,7 +196,6 @@ export class InventoryScene extends BaseScene {
 
     if (selectedDirection !== DIRECTION.NONE) {
       this.movePlayerInputCursor(selectedDirection);
-      console.log(this.selectedInventoryOptionIndex);
       this.updateItemDescriptionText();
     }
   }
@@ -209,7 +207,7 @@ export class InventoryScene extends BaseScene {
     }
 
     this.selectedInventoryDescriptionText.setText(
-      this.inventory[this.selectedInventoryOptionIndex].description
+      this.inventory[this.selectedInventoryOptionIndex].item.description
     );
   }
 

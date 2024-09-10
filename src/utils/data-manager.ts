@@ -9,7 +9,8 @@ import {
   VOLUME_OPTIONS,
 } from '../common/options';
 import { TEXT_SPEED, TILE_SIZE } from '../config';
-import { Monster } from '../types';
+import { BaseInventory, InventoryItem, Monster } from '../types';
+import { DataUtils } from './data-utils';
 import { exhaustiveGuard } from './guard';
 
 const LOCAL_STORAGE_KEY = 'MONSTER_TAMER_DATA';
@@ -35,6 +36,7 @@ interface GlobalState {
   };
   gameStarted: boolean;
   monsters: MonsterData;
+  inventory: BaseInventory;
 }
 
 const initialState: GlobalState = {
@@ -70,6 +72,7 @@ const initialState: GlobalState = {
       },
     ],
   },
+  inventory: [{ item: { id: 1 }, quantity: 9 }, ,],
 };
 
 export const enum DATA_MANAGER_STORE_KEYS {
@@ -83,6 +86,7 @@ export const enum DATA_MANAGER_STORE_KEYS {
   OPTIONS_MENU_COLOR = 'OPTIONS_MENU_COLOR',
   GAME_STARTED = 'GAME_STARTED',
   MONSTERS_IN_PARTY = 'MONSTERS_IN_PARTY',
+  INVENTORY = 'INVENTORY',
 }
 
 class DataManager extends Phaser.Events.EventEmitter {
@@ -137,6 +141,7 @@ class DataManager extends Phaser.Events.EventEmitter {
     existingData.player.direction = initialState.player.direction;
     existingData.gameStarted = initialState.gameStarted;
     existingData.monsters = { ...initialState.monsters };
+    existingData.inventory = initialState.inventory;
 
     this.#store.reset();
     this.updateDataManager(existingData);
@@ -177,10 +182,11 @@ class DataManager extends Phaser.Events.EventEmitter {
       [DATA_MANAGER_STORE_KEYS.OPTIONS_MENU_COLOR]: data.options.menuColor,
       [DATA_MANAGER_STORE_KEYS.GAME_STARTED]: data.gameStarted,
       [DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY]: data.monsters.inParty,
+      [DATA_MANAGER_STORE_KEYS.INVENTORY]: data.inventory,
     });
   }
 
-  private dataManagerDataToGlobalStateObject() {
+  private dataManagerDataToGlobalStateObject(): GlobalState {
     return {
       player: {
         position: {
@@ -205,7 +211,39 @@ class DataManager extends Phaser.Events.EventEmitter {
       monsters: {
         inParty: [...this.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)],
       },
+      inventory: [
+        ...this.store.get(DATA_MANAGER_STORE_KEYS.INVENTORY),
+      ] as GlobalState['inventory'],
     };
+  }
+
+  getInventory(scene: Phaser.Scene): InventoryItem[] {
+    const items: InventoryItem[] = [];
+    const baseInventory: BaseInventory = this.#store.get(
+      DATA_MANAGER_STORE_KEYS.INVENTORY
+    );
+
+    baseInventory.forEach((baseItem) => {
+      const item = DataUtils.getItem(scene, baseItem.item.id);
+      items.push({ item, quantity: baseItem.quantity });
+    });
+
+    console.log({ items });
+
+    return items;
+  }
+
+  updateInventory(items: InventoryItem[]) {
+    const inventory = items.map((item) => {
+      return {
+        item: {
+          id: item.item.id,
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    this.store.set(DATA_MANAGER_STORE_KEYS.INVENTORY, inventory);
   }
 }
 

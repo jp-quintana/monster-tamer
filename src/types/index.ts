@@ -40,3 +40,24 @@ export interface Animation {
   yoyo: boolean;
   assetKey: string;
 }
+export const enum ITEM_EFFECT {
+  HEAL_30 = 'HEAL_30',
+}
+export interface Item {
+  id: number;
+  name: string;
+  effect: ITEM_EFFECT;
+  description: string;
+}
+
+export interface InventoryItem {
+  item: Item;
+  quantity: number;
+}
+
+export interface BaseInventoryItem {
+  item: { [id: string]: number };
+  quantity: number;
+}
+
+export type BaseInventory = BaseInventoryItem[];
