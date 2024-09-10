@@ -54,7 +54,7 @@ export abstract class BaseScene extends Phaser.Scene {
     );
   }
 
-  handleSceneResume(sys: any, data: any) {
+  handleSceneResume(sys: Phaser.Scenes.Systems, data: any) {
     this.controls.lockInput = false;
     if (data) {
       this.log(

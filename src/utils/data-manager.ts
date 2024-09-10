@@ -72,7 +72,7 @@ const initialState: GlobalState = {
       },
     ],
   },
-  inventory: [{ item: { id: 1 }, quantity: 9 }],
+  inventory: [{ item: { id: 1 }, quantity: 1 }],
 };
 
 export const enum DATA_MANAGER_STORE_KEYS {

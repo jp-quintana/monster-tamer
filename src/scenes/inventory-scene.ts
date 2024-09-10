@@ -1,8 +1,8 @@
 import { INVENTORY_ASSET_KEYS, UI_ASSET_KEYS } from '../assets/asset-keys';
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from '../assets/font-keys';
 import { DIRECTION } from '../common/direction';
-import { InventoryItem } from '../types';
-import { dataManager } from '../utils/data-manager';
+import { InventoryItem, Item } from '../types';
+import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
 import { exhaustiveGuard } from '../utils/guard';
 import { NineSlice } from '../utils/nine-slice';
 import { BaseScene } from './base-scene';
@@ -14,6 +14,17 @@ export interface InventoryItemWithGameObjects extends InventoryItem {
     quantity?: Phaser.GameObjects.Text;
     quantitySign?: Phaser.GameObjects.Text;
   };
+}
+
+export interface SceneData {
+  previousSceneName: SCENE_KEYS;
+}
+export interface SceneWasResumedData {
+  itemUsed: boolean;
+}
+export interface SceneItemUsedData {
+  itemUsed: boolean;
+  itemDetails?: Item;
 }
 
 const CANCEL_TEXT_DESCRIPTION = 'Close your bag, and go back to adventuring!';
@@ -31,7 +42,8 @@ const INVENTORY_TEXT_STYLE = Object.freeze({
 });
 
 export class InventoryScene extends BaseScene {
-  private sceneData: { previousSceneName: SCENE_KEYS };
+  private sceneData: SceneData;
+  private sceneWasResumedData: SceneWasResumedData;
   private nineSliceMainContainer: NineSlice;
   private selectedInventoryDescriptionText: Phaser.GameObjects.Text;
   private userInputCursor: Phaser.GameObjects.Image;
@@ -171,20 +183,26 @@ export class InventoryScene extends BaseScene {
     if (this.controls.isInputLocked) return;
 
     if (this.controls.wasEscKeyPressed()) {
-      this.goBackToPreviousScene();
+      this.goBackToPreviousScene(false);
       return;
     }
 
     const wasSpaceKeyPressed = this.controls.wasSpaceKeyPressed();
     if (wasSpaceKeyPressed) {
       if (this.isCancelButtonSelected()) {
-        this.goBackToPreviousScene();
+        this.goBackToPreviousScene(false);
+        return;
+      }
+
+      // TODO: remove this
+      if (this.inventory[this.selectedInventoryOptionIndex].quantity < 1) {
         return;
       }
 
       this.controls.lockInput = true;
       const sceneDataToPass = {
         previousSceneName: SCENE_KEYS.INVENTORY_SCENE,
+        itemSelected: this.inventory[this.selectedInventoryOptionIndex].item,
       };
 
       this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
@@ -215,11 +233,13 @@ export class InventoryScene extends BaseScene {
     return this.selectedInventoryOptionIndex === this.inventory.length;
   }
 
-  private goBackToPreviousScene() {
+  private goBackToPreviousScene(wasItemUsed: boolean, item?: Item) {
     this.controls.lockInput = true;
 
+    const sceneDataToPass = { itemUsed: wasItemUsed, item };
+
     this.scene.stop(SCENE_KEYS.INVENTORY_SCENE);
-    this.scene.resume(this.sceneData.previousSceneName);
+    this.scene.resume(this.sceneData.previousSceneName, sceneDataToPass);
   }
 
   private movePlayerInputCursor(direction: DIRECTION) {
@@ -248,5 +268,27 @@ export class InventoryScene extends BaseScene {
     const y = 30 + this.selectedInventoryOptionIndex * 50;
 
     this.userInputCursor.setY(y);
+  }
+
+  handleSceneResume(sys: Phaser.Scenes.Systems, data: SceneWasResumedData) {
+    super.handleSceneResume(sys, data);
+
+    if (!data || !data.itemUsed) {
+      return;
+    }
+
+    const selectedItem = this.inventory[this.selectedInventoryOptionIndex];
+
+    selectedItem.quantity -= 1;
+    selectedItem.gameObjects.quantity?.setText(`${selectedItem.quantity}`);
+    dataManager.store.set(DATA_MANAGER_STORE_KEYS.INVENTORY, this.inventory);
+
+    // TODO: implement this
+    // if (selectedItem.quantity === 0) {
+    // }
+
+    if (this.sceneData.previousSceneName === SCENE_KEYS.BATTLE_SCENE) {
+      this.goBackToPreviousScene(true, selectedItem.item);
+    }
   }
 }
