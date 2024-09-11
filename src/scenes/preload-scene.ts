@@ -233,7 +233,7 @@ export class PreloadScene extends BaseScene {
     super.create();
     this.createAnimations();
     dataManager.loadData();
-    this.scene.start(SCENE_KEYS.TITLE_SCENE);
+    this.scene.start(SCENE_KEYS.BATTLE_SCENE);
   }
 
   private createAnimations() {

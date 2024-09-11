@@ -65,7 +65,7 @@ const initialState: GlobalState = {
         assetKey: MONSTER_ASSET_KEYS.IGUANIGNITE,
         assetFrame: 0,
         currentLevel: 5,
-        currentHp: 25,
+        currentHp: 15,
         maxHp: 25,
         attackIds: [2],
         baseAttack: 10,

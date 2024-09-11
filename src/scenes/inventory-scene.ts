@@ -16,15 +16,15 @@ export interface InventoryItemWithGameObjects extends InventoryItem {
   };
 }
 
-export interface SceneData {
+export interface InventorySceneData {
   previousSceneName: SCENE_KEYS;
 }
 export interface SceneWasResumedData {
   itemUsed: boolean;
 }
-export interface SceneItemUsedData {
+export interface InventorySceneItemUsedData {
   itemUsed: boolean;
-  itemDetails?: Item;
+  item?: Item;
 }
 
 const CANCEL_TEXT_DESCRIPTION = 'Close your bag, and go back to adventuring!';
@@ -42,7 +42,7 @@ const INVENTORY_TEXT_STYLE = Object.freeze({
 });
 
 export class InventoryScene extends BaseScene {
-  private sceneData: SceneData;
+  private sceneData: InventorySceneData;
   private sceneWasResumedData: SceneWasResumedData;
   private nineSliceMainContainer: NineSlice;
   private selectedInventoryDescriptionText: Phaser.GameObjects.Text;
@@ -236,7 +236,10 @@ export class InventoryScene extends BaseScene {
   private goBackToPreviousScene(wasItemUsed: boolean, item?: Item) {
     this.controls.lockInput = true;
 
-    const sceneDataToPass = { itemUsed: wasItemUsed, item };
+    const sceneDataToPass: InventorySceneItemUsedData = {
+      itemUsed: wasItemUsed,
+      item,
+    };
 
     this.scene.stop(SCENE_KEYS.INVENTORY_SCENE);
     this.scene.resume(this.sceneData.previousSceneName, sceneDataToPass);

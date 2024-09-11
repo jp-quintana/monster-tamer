@@ -133,6 +133,12 @@ export class BattleScene extends BaseScene {
     if (wasSpaceKeyPressed) {
       this.battleMenu.handlePlayerInput('OK');
 
+      // check if the player used an item
+      if (this.battleMenu.wasItemUsed) {
+        this.battleStateMachine.setState(BATTLE_STATES.ENEMY_INPUT);
+        return;
+      }
+
       // check if player selected an attack, and update display text
       if (this.battleMenu.selectedAttack === undefined) return;
 
@@ -340,6 +346,17 @@ export class BattleScene extends BaseScene {
     this.battleStateMachine.addState({
       name: BATTLE_STATES.BATTLE,
       onEnter: () => {
+        // if item was used, only have enemy attack
+        if (this.battleMenu.wasItemUsed) {
+          this.activePlayerMonster.updateMonsterHealth(
+            dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0]
+              .currentHp
+          );
+          this.time.delayedCall(500, () => {
+            this.enemyAttack();
+          });
+          return;
+        }
         this.playerAttack();
       },
     });

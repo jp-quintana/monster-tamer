@@ -99,4 +99,20 @@ export class PlayerBattleMonster extends BattleMonster {
     super.takeDamage(damage, callback);
     this.setHealthBarText();
   }
+
+  updateMonsterHealth(updatedHp: number) {
+    this.currentHealth = updatedHp;
+    if (this.currentHealth > this.maxHealth) {
+      this.currentHealth = this.maxHealth;
+    }
+
+    this.healthBar.setMeterPercentageAnimated(
+      this.currentHealth / this.maxHealth,
+      {
+        skipBattleAnimations: true,
+      }
+    );
+
+    this.setHealthBarText();
+  }
 }

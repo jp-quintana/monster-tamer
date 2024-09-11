@@ -14,6 +14,11 @@ import { BattleMonster } from '../../monsters/battle-monster.js';
 import { animateText } from '../../../utils/text-utils.ts';
 import {} from '../../../config.ts';
 import { dataManager } from '../../../utils/data-manager.ts';
+import { SCENE_KEYS } from '../../../scenes/scene-keys.ts';
+import {
+  InventorySceneData,
+  InventorySceneItemUsedData,
+} from '../../../scenes/inventory-scene.ts';
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
   x: 42,
@@ -49,6 +54,7 @@ export class BattleMenu {
   private userInputCursorPhaserTween: Phaser.Tweens.Tween;
   private skipAnimations: boolean;
   private queuedAnimationPlaying: boolean;
+  private usedItem: boolean;
 
   constructor(
     scene: Phaser.Scene,
@@ -66,10 +72,24 @@ export class BattleMenu {
     this.selectedAttackIndex = undefined;
     this.skipAnimations = skipBattleAnimations;
     this.queuedAnimationPlaying = false;
+    this.usedItem = false;
     this.createMainInfoPane();
     this.createMainBattleMenu();
     this.createMonsterAttackSubMenu();
     this.createPlayerInputCursor();
+
+    this.scene.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.handleSceneResume,
+      this
+    );
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () =>
+      this.scene.events.off(
+        Phaser.Scenes.Events.RESUME,
+        this.handleSceneResume,
+        this
+      )
+    );
   }
 
   get selectedAttack(): number | undefined {
@@ -78,6 +98,10 @@ export class BattleMenu {
     }
 
     return undefined;
+  }
+
+  get wasItemUsed() {
+    return this.usedItem;
   }
 
   showMainBattleMenu() {
@@ -93,6 +117,7 @@ export class BattleMenu {
       BATTLE_MENU_CURSOR_POS.y
     );
     this.selectedAttackIndex = undefined;
+    this.usedItem = false;
   }
 
   hideMainBattleMenu() {
@@ -581,12 +606,11 @@ export class BattleMenu {
 
     if (this.selectedBattleMenuOption === BATTLE_MENU_OPTIONS.ITEM) {
       this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_ITEM;
-      this.updateInfoPanelMessagesAndWaitForInput(
-        ['Your bag is empty...'],
-        () => {
-          this.switchToMainBattleMenu();
-        }
-      );
+      const sceneDataToPass: InventorySceneData = {
+        previousSceneName: SCENE_KEYS.BATTLE_SCENE,
+      };
+      this.scene.scene.launch(SCENE_KEYS.INVENTORY_SCENE, sceneDataToPass);
+      this.scene.scene.pause(SCENE_KEYS.BATTLE_SCENE);
       return;
     }
 
@@ -659,5 +683,30 @@ export class BattleMenu {
       targets: this.userInputCursorPhaserImageGameObject,
     });
     this.userInputCursorPhaserTween.pause();
+  }
+
+  private handleSceneResume(
+    sys: Phaser.Scenes.Systems,
+    data: InventorySceneItemUsedData
+  ) {
+    console.log(
+      `[${
+        BattleMenu.name
+      }:handleSceneResume] scene has been resumed, data provided: ${JSON.stringify(
+        data
+      )}`
+    );
+
+    if (!data || !data.itemUsed) {
+      this.switchToMainBattleMenu();
+      return;
+    }
+
+    console.log(data);
+
+    this.usedItem = true;
+    this.updateInfoPanelMessagesAndWaitForInput([
+      `You used the following item: ${data.item!.name}`,
+    ]);
   }
 }
