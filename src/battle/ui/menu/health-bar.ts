@@ -27,7 +27,6 @@ export class HealthBar {
     this.createHealthBarShadowImages(x, y);
     this.createHealthBarImages(x, y);
     this.setMeterPercentage(1);
-    // this.setMeterPercentageAnimated(0.5, { duration: 1500 });
   }
 
   get container() {
@@ -91,6 +90,17 @@ export class HealthBar {
     const width = this.fullWidth * percent;
     this.middle.displayWidth = width;
     this.rightCap.x = this.middle.x + this.middle.displayWidth;
+    this.updateHealthBarGameObjects();
+  }
+
+  private updateHealthBarGameObjects() {
+    this.rightCap.x = this.middle.x + this.middle.displayWidth;
+
+    const isVisible = this.middle.displayWidth > 0;
+    console.log(isVisible);
+    this.leftCap.visible = isVisible;
+    this.middle.visible = isVisible;
+    this.rightCap.visible = isVisible;
   }
 
   setMeterPercentageAnimated(
@@ -115,14 +125,7 @@ export class HealthBar {
       displayWidth: width,
       duration: options?.duration || options?.duration === 0 ? 0 : 1000,
       ease: Phaser.Math.Easing.Sine.Out,
-      onUpdate: () => {
-        this.rightCap.x = this.middle.x + this.middle.displayWidth;
-
-        const isVisible = this.middle.displayWidth > 0;
-        this.leftCap.visible = isVisible;
-        this.middle.visible = isVisible;
-        this.rightCap.visible = isVisible;
-      },
+      onUpdate: () => this.updateHealthBarGameObjects(),
       onComplete: options?.callback,
     });
   }
