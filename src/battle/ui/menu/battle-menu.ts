@@ -55,6 +55,7 @@ export class BattleMenu {
   private skipAnimations: boolean;
   private queuedAnimationPlaying: boolean;
   private usedItem: boolean;
+  private fleeAtempt: boolean;
 
   constructor(
     scene: Phaser.Scene,
@@ -73,6 +74,7 @@ export class BattleMenu {
     this.skipAnimations = skipBattleAnimations;
     this.queuedAnimationPlaying = false;
     this.usedItem = false;
+    this.fleeAtempt = false;
     this.createMainInfoPane();
     this.createMainBattleMenu();
     this.createMonsterAttackSubMenu();
@@ -104,6 +106,10 @@ export class BattleMenu {
     return this.usedItem;
   }
 
+  get isAttemptingToFlee() {
+    return this.fleeAtempt;
+  }
+
   showMainBattleMenu() {
     this.activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
     this.battleTextGameObjectLine1.setText('what should');
@@ -118,6 +124,7 @@ export class BattleMenu {
     );
     this.selectedAttackIndex = undefined;
     this.usedItem = false;
+    this.fleeAtempt = false;
   }
 
   hideMainBattleMenu() {
@@ -199,7 +206,6 @@ export class BattleMenu {
       BATTLE_UI_TEXT_STYLE
     );
 
-    // TODO: update to use monster data that is passed into this class instance
     this.battleTextGameObjectLine2 = this.scene.add.text(
       20,
       512,
@@ -627,12 +633,8 @@ export class BattleMenu {
 
     if (this.selectedBattleMenuOption === BATTLE_MENU_OPTIONS.FLEE) {
       this.activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_FLEE;
-      this.updateInfoPanelMessagesAndWaitForInput(
-        ['Your fail to run away...'],
-        () => {
-          this.switchToMainBattleMenu();
-        }
-      );
+      this.fleeAtempt = true;
+
       return;
     }
 
@@ -701,8 +703,6 @@ export class BattleMenu {
       this.switchToMainBattleMenu();
       return;
     }
-
-    console.log(data);
 
     this.usedItem = true;
     this.updateInfoPanelMessagesAndWaitForInput([

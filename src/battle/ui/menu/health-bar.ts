@@ -97,7 +97,6 @@ export class HealthBar {
     this.rightCap.x = this.middle.x + this.middle.displayWidth;
 
     const isVisible = this.middle.displayWidth > 0;
-    console.log(isVisible);
     this.leftCap.visible = isVisible;
     this.middle.visible = isVisible;
     this.rightCap.visible = isVisible;
