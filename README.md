@@ -1,1 +1,1 @@
-Link to playlist: https://www.youtube.com/watch?v=2NhPVnvlAMs&list=PLmcXe0-sfoSgq-pyXrFx0GZjHbvoVUW8t
+Link to playlist of videos: https://www.youtube.com/watch?v=2NhPVnvlAMs&list=PLmcXe0-sfoSgq-pyXrFx0GZjHbvoVUW8t
