@@ -23,4 +23,10 @@ export class DataUtils {
       return itemIds.some((id) => id === item.id);
     });
   }
+  // static getItems(scene: Phaser.Scene, itemIds: number[]) {
+  //   const data: Item[] = scene.cache.json.get(DATA_ASSET_KEYS.ITEMS);
+  //   return data.filter((item) => {
+  //     return itemIds.some((id) => id === item.id);
+  //   });
+  // }
 }
