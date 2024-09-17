@@ -4,7 +4,6 @@ import { Attack, Animation, Item, BaseInventoryItem } from '../types';
 export class DataUtils {
   static getMonsterAttack(scene: Phaser.Scene, attackId: number) {
     const data: Attack[] = scene.cache.json.get(DATA_ASSET_KEYS.ATTACKS);
-    return data.find((attack) => attack.id === attackId);
   }
 
   static getAnimations(scene: Phaser.Scene) {
@@ -23,10 +22,9 @@ export class DataUtils {
       return itemIds.some((id) => id === item.id);
     });
   }
-  // static getItems(scene: Phaser.Scene, itemIds: number[]) {
-  //   const data: Item[] = scene.cache.json.get(DATA_ASSET_KEYS.ITEMS);
-  //   return data.filter((item) => {
-  //     return itemIds.some((id) => id === item.id);
-  //   });
-  // }
+
+  static getMonsterById(scene: Phaser.Scene, monsterId: number) {
+    const data: Item[] = scene.cache.json.get(DATA_ASSET_KEYS.MONSTERS);
+    return data.find((monster) => monster.id === monsterId);
+  }
 }
