@@ -10,6 +10,7 @@ import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
 import { BATTLE_SCENE_OPTIONS } from '../common/options.ts';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager.ts';
+import { DataUtils } from '../utils/data-utils.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { BaseScene } from './base-scene.ts';
@@ -70,18 +71,7 @@ export class BattleScene extends BaseScene {
     // render out the player and enemy monsters
     this.activeEnemyMonster = new EnemyBattleMonster({
       scene: this,
-      monsterDetails: {
-        id: 2,
-        monsterId: 2,
-        name: MONSTER_ASSET_KEYS.CARNODUSK,
-        assetKey: MONSTER_ASSET_KEYS.CARNODUSK,
-        assetFrame: 0,
-        currentLevel: 5,
-        currentHp: 25,
-        maxHp: 25,
-        attackIds: [1],
-        baseAttack: 5,
-      },
+      monsterDetails: DataUtils.getMonsterById(this, 2)!,
       skipBattleAnimations: this.skipAnimations,
     });
 

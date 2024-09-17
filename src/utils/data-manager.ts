@@ -57,20 +57,7 @@ const initialState: GlobalState = {
   },
   gameStarted: false,
   monsters: {
-    inParty: [
-      {
-        id: 1,
-        monsterId: 1,
-        name: MONSTER_ASSET_KEYS.IGUANIGNITE,
-        assetKey: MONSTER_ASSET_KEYS.IGUANIGNITE,
-        assetFrame: 0,
-        currentLevel: 5,
-        currentHp: 25,
-        maxHp: 25,
-        attackIds: [2],
-        baseAttack: 10,
-      },
-    ],
+    inParty: [],
   },
   inventory: [{ item: { id: 1 }, quantity: 1 }],
 };
@@ -99,6 +86,13 @@ class DataManager extends Phaser.Events.EventEmitter {
 
   get store() {
     return this.#store;
+  }
+
+  init(scene: Phaser.Scene) {
+    const startingMonster = DataUtils.getMonsterById(scene, 1);
+    this.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY, [
+      startingMonster,
+    ]);
   }
 
   loadData() {
@@ -134,7 +128,7 @@ class DataManager extends Phaser.Events.EventEmitter {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
   }
 
-  startNewGame() {
+  startNewGame(scene: Phaser.Scene) {
     // get existing data before reseting all of the data, so we can persist options data
     const existingData = { ...this.dataManagerDataToGlobalStateObject() };
     existingData.player.position = { ...initialState.player.position };
@@ -145,6 +139,7 @@ class DataManager extends Phaser.Events.EventEmitter {
 
     this.#store.reset();
     this.updateDataManager(existingData);
+    this.init(scene);
     this.saveData();
   }
 

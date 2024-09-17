@@ -1,5 +1,5 @@
 import { DATA_ASSET_KEYS } from '../assets/asset-keys';
-import { Attack, Animation, Item, BaseInventoryItem } from '../types';
+import { Attack, Animation, Item, BaseInventoryItem, Monster } from '../types';
 
 export class DataUtils {
   static getMonsterAttack(scene: Phaser.Scene, attackId: number) {
@@ -24,7 +24,7 @@ export class DataUtils {
   }
 
   static getMonsterById(scene: Phaser.Scene, monsterId: number) {
-    const data: Item[] = scene.cache.json.get(DATA_ASSET_KEYS.MONSTERS);
+    const data: Monster[] = scene.cache.json.get(DATA_ASSET_KEYS.MONSTERS);
     return data.find((monster) => monster.id === monsterId);
   }
 }
