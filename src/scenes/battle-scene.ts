@@ -1,4 +1,3 @@
-import { MONSTER_ASSET_KEYS } from '../assets/asset-keys.ts';
 import {
   ATTACK_TARGET,
   AttackManager,
@@ -9,8 +8,8 @@ import { PlayerBattleMonster } from '../battle/monsters/player-battle-monster.ts
 import { BattleMenu } from '../battle/ui/menu/battle-menu.ts';
 import { DIRECTION } from '../common/direction.ts';
 import { BATTLE_SCENE_OPTIONS } from '../common/options.ts';
+import { Monster } from '../types/index.ts';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager.ts';
-import { DataUtils } from '../utils/data-utils.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { BaseScene } from './base-scene.ts';
@@ -28,6 +27,11 @@ const enum BATTLE_STATES {
   FLEE_ATEMPT = 'FLEE_ATEMPT',
 }
 
+export interface BattleSceneData {
+  playerMonsters: Monster[];
+  enemyMonsters: Monster[];
+}
+
 export class BattleScene extends BaseScene {
   private battleMenu: BattleMenu;
   private activeEnemyMonster: EnemyBattleMonster;
@@ -37,6 +41,7 @@ export class BattleScene extends BaseScene {
   private attackManager: AttackManager;
   private skipAnimations: boolean;
   private activeEnemyAttackIndex: number;
+  private sceneData: BattleSceneData;
 
   constructor() {
     super({
@@ -44,8 +49,10 @@ export class BattleScene extends BaseScene {
     });
   }
 
-  init() {
-    super.init();
+  init(data: BattleSceneData) {
+    super.init(data);
+    this.sceneData = data;
+
     this.activePlayerAttackIndex = -1;
     this.activeEnemyAttackIndex = -1;
     const chosenBattleSceneOption = dataManager.store.get(
@@ -71,15 +78,14 @@ export class BattleScene extends BaseScene {
     // render out the player and enemy monsters
     this.activeEnemyMonster = new EnemyBattleMonster({
       scene: this,
-      monsterDetails: DataUtils.getMonsterById(this, 2)!,
+      // monsterDetails: DataUtils.getMonsterById(this, 2)!,
+      monsterDetails: this.sceneData.enemyMonsters[0],
       skipBattleAnimations: this.skipAnimations,
     });
 
     this.activePlayerMonster = new PlayerBattleMonster({
       scene: this,
-      monsterDetails: dataManager.store.get(
-        DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY
-      )[0],
+      monsterDetails: this.sceneData.playerMonsters[0],
       skipBattleAnimations: this.skipAnimations,
     });
 

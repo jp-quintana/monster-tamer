@@ -6,6 +6,7 @@ import {
   TILED_ENCOUNTER_LAYER_ALPHA,
 } from '../config';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager';
+import { DataUtils } from '../utils/data-utils';
 import { getTargetPositionFromGameObjectPositionAndDirection } from '../utils/grid-utils';
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from '../utils/text-utils';
 import { NPC, NPC_MOVEMENT_PATTERN, NPCPath } from '../world/characters/npc';
@@ -13,6 +14,7 @@ import { Player } from '../world/characters/player';
 import { DialogUi } from '../world/dialog-ui';
 import { Menu, MENU_OPTIONS } from '../world/menu/menu';
 import { BaseScene } from './base-scene';
+import { BattleSceneData } from './battle-scene';
 import { SCENE_KEYS } from './scene-keys';
 
 interface TiledObjectProperty {
@@ -341,7 +343,13 @@ export class WorldScene extends BaseScene {
       this.cameras.main.once(
         Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
         () => {
-          this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+          const dataToPass: BattleSceneData = {
+            enemyMonsters: [DataUtils.getMonsterById(this, 2)!],
+            playerMonsters: dataManager.store.get(
+              DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY
+            ),
+          };
+          this.scene.start(SCENE_KEYS.BATTLE_SCENE, dataToPass);
         }
       );
     }
