@@ -10,6 +10,7 @@ import { DIRECTION } from '../common/direction.ts';
 import { BATTLE_SCENE_OPTIONS } from '../common/options.ts';
 import { Monster } from '../types/index.ts';
 import { DATA_MANAGER_STORE_KEYS, dataManager } from '../utils/data-manager.ts';
+import { DataUtils } from '../utils/data-utils.ts';
 import { createSceneTransition } from '../utils/scene-transition.ts';
 import { StateMachine } from '../utils/state-machine.ts';
 import { BaseScene } from './base-scene.ts';
@@ -52,6 +53,15 @@ export class BattleScene extends BaseScene {
   init(data: BattleSceneData) {
     super.init(data);
     this.sceneData = data;
+
+    if (Object.keys(data).length === 0) {
+      this.sceneData = {
+        enemyMonsters: [DataUtils.getMonsterById(this, 2)!],
+        playerMonsters: [
+          dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0],
+        ],
+      };
+    }
 
     this.activePlayerAttackIndex = -1;
     this.activeEnemyAttackIndex = -1;
