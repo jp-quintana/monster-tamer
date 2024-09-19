@@ -4,6 +4,7 @@ import { Attack, Animation, Item, BaseInventoryItem, Monster } from '../types';
 export class DataUtils {
   static getMonsterAttack(scene: Phaser.Scene, attackId: number) {
     const data: Attack[] = scene.cache.json.get(DATA_ASSET_KEYS.ATTACKS);
+    return data.find((attack) => attack.id === attackId);
   }
 
   static getAnimations(scene: Phaser.Scene) {

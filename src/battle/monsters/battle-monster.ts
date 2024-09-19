@@ -42,7 +42,6 @@ export class BattleMonster {
       this.currentHealth / this.maxHealth,
       { skipBattleAnimations: true }
     );
-
     this.monsterDetails.attackIds.forEach((attackId) => {
       const monsterAttack = DataUtils.getMonsterAttack(this.scene, attackId);
 
@@ -50,6 +49,9 @@ export class BattleMonster {
     });
   }
 
+  get currentHp(): number {
+    return this.currentHealth;
+  }
   get isFainted(): boolean {
     return this.currentHealth <= 0;
   }

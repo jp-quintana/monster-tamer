@@ -43,6 +43,7 @@ export class BattleScene extends BaseScene {
   private skipAnimations: boolean;
   private activeEnemyAttackIndex: number;
   private sceneData: BattleSceneData;
+  private activePlayerMonsterPartyIndex: number;
 
   constructor() {
     super({
@@ -57,14 +58,16 @@ export class BattleScene extends BaseScene {
     if (Object.keys(data).length === 0) {
       this.sceneData = {
         enemyMonsters: [DataUtils.getMonsterById(this, 2)!],
-        playerMonsters: [
-          dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0],
-        ],
+        playerMonsters: dataManager.store.get(
+          DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY
+        ),
       };
     }
 
     this.activePlayerAttackIndex = -1;
     this.activeEnemyAttackIndex = -1;
+    this.activePlayerMonsterPartyIndex = 0;
+
     const chosenBattleSceneOption = dataManager.store.get(
       DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS
     );
@@ -239,6 +242,14 @@ export class BattleScene extends BaseScene {
   }
 
   private postBattleSequenceCheck() {
+    this.sceneData.playerMonsters[
+      this.activePlayerMonsterPartyIndex
+    ].currentHp = this.activePlayerMonster.currentHp;
+    dataManager.store.set(
+      DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY,
+      this.sceneData.playerMonsters
+    );
+
     if (this.activeEnemyMonster.isFainted) {
       this.activeEnemyMonster.playDeathAnimation(() => {
         this.battleMenu.updateInfoPanelMessagesAndWaitForInput(
